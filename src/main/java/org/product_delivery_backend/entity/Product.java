@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-
+@Table(name = "products")
 public class Product {
 
     @Id
@@ -21,7 +21,7 @@ public class Product {
 
     @Pattern(regexp = "^[\\p{L}0-9\\s'\\-()]+$", message = "The title may contain letters, numbers, spaces, apostrophes, hyphens and brackets.")
     @Size(min = 2, max = 64, message = "The title must be between 2 and 64 characters long.")
-    @NotBlank(message = "Поле \"title\" не должно быть пустым")
+    @NotBlank(message = "Field \"title\" must not be empty")
     private String title;
 
     @DecimalMin(value = "0.01", message = "The price must be bigger than 0")
