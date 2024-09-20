@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+
 public class Product {
 
     @Id
@@ -30,7 +31,7 @@ public class Product {
     @Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "The product code can only contain letters, numbers, hyphens and underscores.")
     @NotBlank(message = "The Field \"article\" must not be empty")
     @Size(min = 2, max = 32, message = "The product code must contain from 2 to 32 characters")
-    private String article;
+    private String productCode;
 }
 
 
