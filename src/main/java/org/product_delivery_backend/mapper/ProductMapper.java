@@ -8,5 +8,12 @@ import org.product_delivery_backend.entity.Product;
 @Mapper(componentModel = "spring")
     public interface ProductMapper {
 
+    @Mapping(source = "product.id", target = "id")
+    @Mapping(source = "product.title", target = "title")
+    @Mapping(source = "product.price", target = "price")
+    @Mapping(source = "product.productCode", target = "productCode")
+    @Mapping(source = "product.minQuantity", target = "minQuantity")
+    @Mapping(source = "product.description", target = "description")
+    @Mapping(source = "product.photoLink", target = "photoLink")
         ProductResponseDto toProductResponseDTO(Product product);
     }
