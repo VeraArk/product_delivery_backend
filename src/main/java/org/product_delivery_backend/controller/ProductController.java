@@ -34,6 +34,7 @@ public class ProductController {
     public ResponseEntity<ProductResponseDto> deleteProduct(@PathVariable("id") Long id) {
         productService.deleteProduct(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
     @GetMapping("/findById")
     public ResponseEntity<ProductResponseDto> findByID(@RequestParam(value = "id") Long id) {
