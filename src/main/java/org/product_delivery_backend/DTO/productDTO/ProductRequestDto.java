@@ -1,18 +1,18 @@
 package org.product_delivery_backend.dto.productDTO;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class ProductResponseDto {
-
+@AllArgsConstructor
+public class ProductRequestDto {
     private String title;
     private BigDecimal price;
     private String productCode;
-
 }
