@@ -15,4 +15,7 @@ public class ProductRequestDto {
     private String title;
     private BigDecimal price;
     private String productCode;
+    private String minQuantity;
+    private String description;
+    private String photoLink;
 }
