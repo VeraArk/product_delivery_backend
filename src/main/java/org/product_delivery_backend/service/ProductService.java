@@ -19,12 +19,11 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public List<ProductResponseDto> findAllProduct() {
-        List<Product> products = productRepository.findAll();
-        return products.stream()
-                .map(productMapper::toProductResponseDTO)
-                .collect(Collectors.toList());
+    public List<Product> findAllProduct() {
+        return productRepository.findAll();
+
     }
+
 
     public ProductResponseDto addProduct(ProductRequestDto productRequestDto) {
         Product product = productMapper.toProduct(productRequestDto);
@@ -39,4 +38,11 @@ public class ProductService {
             throw new NotFoundException("Product with id " + productId + " not found");
         }
     }
+
+    public ProductResponseDto findProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("This product does not exist"));
+        return productMapper.toProductResponseDTO(product);
+    }
+
+
 }
