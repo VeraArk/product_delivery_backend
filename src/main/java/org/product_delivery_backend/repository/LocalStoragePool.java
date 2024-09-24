@@ -1,7 +1,7 @@
 package org.product_delivery_backend.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.product_delivery_backend.config.UseProps;
+import org.product_delivery_backend.config.Config;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -9,12 +9,12 @@ import java.io.*;
 @Slf4j
 @Component
 public class LocalStoragePool
-        implements StoragePool, UseProps {
+        implements StoragePool {
 private final File prefix;
 
-public LocalStoragePool()
+public LocalStoragePool(Config config)
 {
-        this.prefix = new File(props.getProperty(fileStorage, "/var/tmp/files"));
+        this.prefix = new File(config.getFileStorage());
         prefix.mkdirs();
 }
 
