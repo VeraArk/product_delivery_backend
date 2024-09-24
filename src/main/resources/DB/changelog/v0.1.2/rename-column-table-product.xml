@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="rename-column-table-product" author="VeraArkind">
+        <renameColumn tableName="products" oldColumnName="photoLink" newColumnName="photo-link" columnDataType="varchar(255)"/>
+        <renameColumn tableName="products" oldColumnName="minQuantity" newColumnName="min-quantity" columnDataType="varchar(255)"/>
+    </changeSet>
+
+</databaseChangeLog>
