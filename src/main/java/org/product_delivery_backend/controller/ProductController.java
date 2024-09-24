@@ -1,6 +1,7 @@
 package org.product_delivery_backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.product_delivery_backend.dto.productDTO.AllProductResponseDto;
 import org.product_delivery_backend.dto.productDTO.ProductRequestDto;
 import org.springframework.web.bind.annotation.*;
 import org.product_delivery_backend.dto.productDTO.ProductResponseDto;
@@ -20,7 +21,7 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> findAll() {
+    public ResponseEntity<List<AllProductResponseDto>> findAll() {
         return new ResponseEntity<>(productService.findAllProduct(), HttpStatus.OK);
     }
 
