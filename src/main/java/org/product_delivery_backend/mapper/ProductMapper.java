@@ -1,6 +1,7 @@
 package org.product_delivery_backend.mapper;
 
 import org.mapstruct.Mapper;
+import org.product_delivery_backend.dto.productDTO.AllProductResponseDto;
 import org.product_delivery_backend.dto.productDTO.ProductRequestDto;
 import org.mapstruct.Mapping;
 import org.product_delivery_backend.dto.productDTO.ProductResponseDto;
@@ -8,6 +9,13 @@ import org.product_delivery_backend.entity.Product;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
+
+    @Mapping(source = "product.id", target = "id")
+    @Mapping(source = "product.title", target = "title")
+    @Mapping(source = "product.price", target = "price")
+    @Mapping(source = "product.minQuantity", target = "minQuantity")
+    @Mapping(source = "product.photoLink", target = "photoLink")
+    AllProductResponseDto toAllProductResponseDTO(Product product);
 
     @Mapping(source = "product.id", target = "id")
     @Mapping(source = "product.title", target = "title")
@@ -27,5 +35,8 @@ public interface ProductMapper {
     @Mapping(source = "productRequestDto.description", target = "description")
     @Mapping(source = "productRequestDto.photoLink", target = "photoLink")
     Product toProduct(ProductRequestDto productRequestDto);
+
+
+
 }
 
