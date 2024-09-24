@@ -37,8 +37,8 @@ public class ProductController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/findById")
-    public ResponseEntity<ProductResponseDto> findByID(@RequestParam(value = "id") Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponseDto> findByID(@PathVariable("id") Long id) {
         return new ResponseEntity<>(productService.findProductById(id), HttpStatus.OK);
 
     }
