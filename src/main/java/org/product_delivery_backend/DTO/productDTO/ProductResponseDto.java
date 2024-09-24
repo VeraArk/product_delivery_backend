@@ -1,4 +1,4 @@
-package org.product_delivery_backend.dto.productDTO;
+package org.product_delivery_backend.DTO.productDTO;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
