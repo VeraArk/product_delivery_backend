@@ -16,12 +16,12 @@ import java.util.UUID;
 @Entity
 @Table(name = "file_metadata")
 public class FileMetadata {
-@Id
-//@GeneratedValue(strategy = GenerationType.UUID)
-private UUID id;
-private LocalDateTime ctime;
-private long size;
-private String fileName;
-private String mimeType;
-private String keyword;
-}
+        @Id
+        //@GeneratedValue(strategy = GenerationType.UUID)
+        private UUID id;
+        private LocalDateTime ctime;
+        private long size;
+        private String fileName;
+        private String mimeType;
+        private String keyword;
+        }
