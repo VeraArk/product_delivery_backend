@@ -54,13 +54,15 @@ public UUID store(MultipartFile file)
 
         // TODO create exceptions
         try {
+                // 1. store the file
                 long size = localStoragePool.store(file.getInputStream(), id.toString());
 
                 log.info("file: {}, size: {}k", file.getOriginalFilename(), size / 1024);
 
+                // 2. store the metadata
                 FileMetadata saved = repo.save(fileMetadata);
 
-                return  saved.getId();
+                return saved.getId();
         } catch (IOException e) {
                 throw new RuntimeException(e);
         }
