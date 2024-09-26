@@ -8,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.product_delivery_backend.dto.productDTO.ProductResponseDto;
-import org.product_delivery_backend.entity.Product;
 import org.product_delivery_backend.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
