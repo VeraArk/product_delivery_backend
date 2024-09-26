@@ -3,6 +3,7 @@ package org.product_delivery_backend.service;
 import lombok.Data;
 
 import org.product_delivery_backend.DTO.productDTO.ProductResponseDto;
+import org.product_delivery_backend.dto.productDTO.ProductRequestDto;
 import org.product_delivery_backend.entity.Product;
 import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.mapper.ProductMapper;
@@ -34,7 +35,7 @@ public class ProductService {
     }
 
 
-    public ProductResponseDto addProduct(org.product_delivery_backend.dto.productDTO.ProductRequestDto productRequestDto) {
+    public ProductResponseDto addProduct(ProductRequestDto productRequestDto) {
         Product product = productMapper.toProduct(productRequestDto);
         Product savedProduct = productRepository.save(product);
         return productMapper.toProductResponseDTO(savedProduct);
