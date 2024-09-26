@@ -28,7 +28,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public Page<AllProductResponseDto> findAllProductPage(Pageable pageable) {
+    public Page<org.product_delivery_backend.dto.productDTO.AllProductResponseDto> findAllProductPage(Pageable pageable) {
         Page<Product> products = productRepository.findAll(pageable);
         return products.map(productMapper::toAllProductResponseDTO);
     }
