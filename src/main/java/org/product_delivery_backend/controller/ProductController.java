@@ -1,12 +1,13 @@
 package org.product_delivery_backend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.product_delivery_backend.DTO.productDTO.ProductResponseDto;
 import org.product_delivery_backend.dto.productDTO.AllProductResponseDto;
 import org.product_delivery_backend.dto.productDTO.ProductRequestDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-
+import org.product_delivery_backend.dto.productDTO.ProductResponseDto;
 import org.product_delivery_backend.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,12 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<List<AllProductResponseDto>> findAll() {
         return new ResponseEntity<>(productService.findAllProduct(), HttpStatus.OK);
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<Page<AllProductResponseDto>> findAllPage(@RequestParam int page, @RequestParam int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return new ResponseEntity<>(productService.findAllProductPage(pageable), HttpStatus.OK);
     }
 
     @PostMapping

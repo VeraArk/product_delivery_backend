@@ -7,6 +7,8 @@ import org.product_delivery_backend.entity.Product;
 import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.mapper.ProductMapper;
 import org.product_delivery_backend.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,11 @@ public class ProductService {
         return products.stream()
                 .map(productMapper::toAllProductResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Page<AllProductResponseDto> findAllProductPage(Pageable pageable) {
+        Page<Product> products = productRepository.findAll(pageable);
+        return products.map(productMapper::toAllProductResponseDTO);
     }
 
 

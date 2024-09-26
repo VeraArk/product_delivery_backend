@@ -36,10 +36,10 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST, "Already Exist");
     }
 
-    @ExceptionHandler(DatabaseException.class)
-    public ResponseEntity<ErrorResponseDto> handleDatabaseException(DatabaseException e) {
-        return buildErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, "Database Error");
-    }
+//    @ExceptionHandler(DatabaseException.class)
+//    public ResponseEntity<ErrorResponseDto> handleDatabaseException(DatabaseException e) {
+//        return buildErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, "Database Error");
+//    }
 
     @ExceptionHandler(FileProcessingException.class)
     public ResponseEntity<ErrorResponseDto> handleFileProcessingException(FileProcessingException e) {
