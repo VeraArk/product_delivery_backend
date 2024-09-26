@@ -36,7 +36,11 @@ private Config config;
 public UUID store(MultipartFile file)
 {
         if(file == null || file.isEmpty() || file.getSize() > 1024 * config.getMaxFileSize()) {
-                throw new RuntimeException("File is empty or out of bounds");
+                var msg = "File is empty or too big";
+
+                log.error(msg);
+
+                throw new RuntimeException(msg);
         }
 
         UUID id = UUID.randomUUID();
@@ -64,6 +68,8 @@ public UUID store(MultipartFile file)
 
                 return saved.getId();
         } catch (IOException e) {
+                log.error("file: {}, error: {}", fileMetadata.getFileName(), e.getMessage());
+
                 throw new RuntimeException(e);
         }
 }
@@ -74,12 +80,12 @@ public Pair<Resource, FileMetadata> load(UUID id)
         Optional<FileMetadata> meta = repo.findById(id);
 
         if(meta.isEmpty())
-                throw new RuntimeException("File metadata not found");
+                throw new RuntimeException("The File " + id + " metadata not found");
 
         Resource resource = new InputStreamResource(localStoragePool.load(id.toString()));
 
         if(!resource.exists())
-                throw new RuntimeException("File not found");
+                throw new RuntimeException("File " + id + " not found");
 
         return new Pair<>(resource, meta.get());
 }

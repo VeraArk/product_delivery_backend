@@ -8,24 +8,32 @@ import java.io.*;
 
 @Slf4j
 @Component
-public class LocalStoragePool
+public class FSPool
         implements StoragePool {
-private final File prefix;
+private final File poolRoot;
 
-public LocalStoragePool(Config config)
+public FSPool(Config config)
 {
-        this.prefix = new File(config.getFileStorage());
-        prefix.mkdirs();
+        this.poolRoot = new File(config.getStorageRoot());
+        poolRoot.mkdirs();
+}
+
+@Override
+public String path(String filename)
+{
+        return poolRoot.getAbsolutePath() + '/' + filename;
 }
 
 @Override
 public long store(InputStream in, String filename)
 {
-        String destFileName = prefix.getAbsolutePath() + '/' + filename;
+        String filePath = path(filename);
 
-        try (FileOutputStream os = new FileOutputStream(destFileName)) {
+        try (FileOutputStream os = new FileOutputStream(filePath)) {
                 return in.transferTo(os);
         } catch (IOException e) {
+                log.error("Can't store {}: {}", filePath, e.getMessage());
+
                 throw new RuntimeException(e);
         }
 }
@@ -33,7 +41,7 @@ public long store(InputStream in, String filename)
 @Override
 public InputStream load(String filename)
 {
-        String filePath = prefix.getAbsolutePath() + '/' + filename;
+        String filePath = path(filename);
 
         try {
                 return new FileInputStream(filePath);

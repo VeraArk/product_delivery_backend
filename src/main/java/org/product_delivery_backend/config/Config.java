@@ -23,7 +23,7 @@ import org.springframework.validation.annotation.Validated;
 public class Config {
 
 @NotEmpty
-private String fileStorage;
+private String storageRoot;
 
 // The max file size in kilobytes
 @Max(4096)
