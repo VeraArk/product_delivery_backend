@@ -48,12 +48,14 @@ public class CartService {
         }
         cartProductRepository.save(existCartProduct);
     }
-
+    @Transactional
     public void removeProductFromCart(Long cartId, Long productId) {
         Optional<CartProduct> optionalCartProduct = cartProductRepository.findByCartIdAndProductId(cartId, productId);
         if (optionalCartProduct.isEmpty()) {
             throw new NotFoundException("There is no such product in the cart");
-        } else cartProductRepository.deleteAllByProductId(productId);
+        } else {
+            cartProductRepository.deleteByCartIdAndProductId(cartId, productId);
+        }
     }
 
     public List<ProductResponseDto> getProductsInCart(Long cartId) {
@@ -67,12 +69,10 @@ public class CartService {
                 .map(cartProduct -> productMapper.toProductResponseDTO(cartProduct.getProduct())) // Из каждого CartProduct берем Product и маппим в DTO
                 .toList();
     }
-
+    @Transactional
     public void clearCart(Long cartId) {
         cartProductRepository.deleteAllByCartId(cartId);
     }
-
-    ;
 
     // доп метод сервіса - внутренній
 
