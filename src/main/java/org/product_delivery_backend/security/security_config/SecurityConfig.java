@@ -38,8 +38,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login","/api/auth/refresh").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
 
