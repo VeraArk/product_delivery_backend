@@ -1,6 +1,7 @@
 package org.product_delivery_backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.product_delivery_backend.dto.cartPrductDto.CartProductResponseDto;
 import org.product_delivery_backend.dto.productDto.*;
 import org.product_delivery_backend.service.CartService;
 import org.springframework.http.ResponseEntity;
@@ -43,5 +44,12 @@ public class CartController {
         cartService.clearCart(userId);
         return ResponseEntity.ok("Cart is empty");
     }
-}
 
+    //update корзіны
+    @PutMapping("/{cartId}/{productId}/{productQuantity}")
+    public ResponseEntity<CartProductResponseDto> updateCartProduct(@PathVariable Long cartId, @PathVariable Long productId, @PathVariable Integer productQuantity)
+    {
+        CartProductResponseDto cartProductResponseDto = cartService.updateCartProduct(cartId, productId, productQuantity);
+        return ResponseEntity.ok(cartProductResponseDto);
+    }
+}
