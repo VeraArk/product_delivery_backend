@@ -2,8 +2,8 @@ package org.product_delivery_backend.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.product_delivery_backend.DTO.userDto.UserRequestDto;
-import org.product_delivery_backend.DTO.userDto.UserResponseDto;
+import org.product_delivery_backend.dto.userDto.UserRequestDto;
+import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.mapper.UserMapper;
 import org.product_delivery_backend.repository.UserRepository;

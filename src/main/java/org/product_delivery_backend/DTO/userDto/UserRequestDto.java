@@ -1,4 +1,4 @@
-package org.product_delivery_backend.DTO.userDto;
+package org.product_delivery_backend.dto.userDto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;

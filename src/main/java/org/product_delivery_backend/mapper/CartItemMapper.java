@@ -9,7 +9,7 @@ import org.product_delivery_backend.entity.CartProduct;
 public interface CartItemMapper {
 
 
-    CartProduct toCart (CartItemResponseDto cartItemResponceDto);
-    CartItemResponseDto toCartItemRespnceDto(CartProduct cartItem);
+    CartProduct toCart (CartItemResponseDto cartItemResponseDto);
+    CartItemResponseDto toCartItemResponseDto(CartProduct cartItem);
 
 }

@@ -1,4 +1,4 @@
-package org.product_delivery_backend.dto.productDTO;
+package org.product_delivery_backend.dto.productDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

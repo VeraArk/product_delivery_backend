@@ -1,4 +1,4 @@
-package org.product_delivery_backend.DTO.userDto;
+package org.product_delivery_backend.dto.userDto;
 
 
 import lombok.AllArgsConstructor;
@@ -16,5 +16,5 @@ public class UserResponseDto {
     private String lastName;
     private String email;
     private String phone;
-    private String role;
+    private String roles;
 }
