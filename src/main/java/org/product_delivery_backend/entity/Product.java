@@ -31,6 +31,7 @@ public class Product {
     private BigDecimal price;
 
     @Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "The product code can only contain letters, numbers, hyphens and underscores.")
+
     @NotBlank(message = "The Field \"productCode\" must not be empty")
     @Size(min = 2, max = 32, message = "The product code must contain from 2 to 32 characters")
     @Column(name="product_code")
@@ -46,7 +47,7 @@ public class Product {
     @Size(min = 10, max = 255, message = "The product code must contain from 10 to 255 characters")
     private String description;
 
-//    @URL(message = "Invalid URL format")
+    @URL(message = "Invalid URL format")
     // на случай если ссылка будет хранится в базе
     //@Pattern(regexp = "^[A-Za-z0-9/._-]+$", message = "Invalid file path")
     //@Size(max = 255, message = "File path is too long")
