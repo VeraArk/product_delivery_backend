@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
 
@@ -32,7 +31,8 @@ public class Product {
     private BigDecimal price;
 
     @Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "The product code can only contain letters, numbers, hyphens and underscores.")
-    @NotBlank(message = "The Field \"article\" must not be empty")
+
+    @NotBlank(message = "The Field \"productCode\" must not be empty")
     @Size(min = 2, max = 32, message = "The product code must contain from 2 to 32 characters")
     @Column(name="product_code")
     private String productCode;
@@ -43,7 +43,7 @@ public class Product {
     private String minQuantity;
 
     @Pattern(regexp = "^[A-Za-z0-9.,-:;()?!\\s]+$", message = "The product code can only contain letters, numbers.")
-    @NotBlank(message = "The Field \"article\" must not be empty")
+    @NotBlank(message = "The Field \"description\" must not be empty")
     @Size(min = 10, max = 255, message = "The product code must contain from 10 to 255 characters")
     private String description;
 
