@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.product_delivery_backend.entity.Role;
+
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -16,5 +19,4 @@ public class UserResponseDto {
     private String lastName;
     private String email;
     private String phone;
-    private String role;
 }
