@@ -1,4 +1,4 @@
-package org.product_delivery_backend.dto.productDTO;
+package org.product_delivery_backend.dto.productDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProdactAddToCartRequstDto {
+public class ProductAddToCartRequestDto {
     private Long id;
     private String title;
     private BigDecimal price;

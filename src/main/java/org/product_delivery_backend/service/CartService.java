@@ -2,7 +2,7 @@ package org.product_delivery_backend.service;
 
 import jakarta.transaction.Transactional;
 import lombok.Data;
-import org.product_delivery_backend.dto.productDTO.ProductResponseDto;
+import org.product_delivery_backend.dto.productDto.ProductResponseDto;
 import org.product_delivery_backend.entity.*;
 import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.mapper.CartItemMapper;

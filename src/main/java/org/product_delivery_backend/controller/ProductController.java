@@ -1,9 +1,7 @@
 package org.product_delivery_backend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.product_delivery_backend.DTO.productDTO.ProductResponseDto;
-import org.product_delivery_backend.dto.productDTO.AllProductResponseDto;
-import org.product_delivery_backend.dto.productDTO.ProductRequestDto;
+import org.product_delivery_backend.dto.productDto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

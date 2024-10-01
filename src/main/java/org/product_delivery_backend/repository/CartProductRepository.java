@@ -1,9 +1,7 @@
 package org.product_delivery_backend.repository;
 
-import org.product_delivery_backend.dto.productDTO.ProductResponseDto;
-import org.product_delivery_backend.entity.Cart;
+import org.product_delivery_backend.dto.productDto.ProductResponseDto;
 import org.product_delivery_backend.entity.CartProduct;
-import org.product_delivery_backend.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
