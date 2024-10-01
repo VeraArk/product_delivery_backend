@@ -26,11 +26,11 @@ public class CartProduct {
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
-//    @NotNull
+    @NotNull
     private Product product;
 
     @Column(name = "product_quantity")
-//    @NotNull
+    @NotNull
     @Min(1)
     private Integer productQuantity;
 
