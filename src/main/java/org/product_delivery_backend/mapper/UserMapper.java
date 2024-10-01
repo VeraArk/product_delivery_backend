@@ -18,5 +18,5 @@ public interface UserMapper {
 
     List<UserResponseDto> toResponseList(List<User> users);
 
-    //UserProfileDto toUserProfileDto(User user);
+    UserProfileDto toUserProfileDto(User user);
 }
