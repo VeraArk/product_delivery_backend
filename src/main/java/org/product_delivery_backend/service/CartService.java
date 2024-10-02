@@ -2,6 +2,7 @@ package org.product_delivery_backend.service;
 
 import jakarta.transaction.Transactional;
 import lombok.Data;
+
 import org.product_delivery_backend.dto.cartProductDto.CartProductResponseDto;
 import org.product_delivery_backend.dto.productDto.ProductResponseDto;
 import org.product_delivery_backend.entity.*;
@@ -59,7 +60,9 @@ public class CartService {
         }
     }
 
+
     public List<CartProductResponseDto> getProductsInCart(Long cartId ) {
+
         List<CartProduct> cartProducts = cartProductRepository.findByCartId(cartId);
         if (cartProducts.isEmpty()) {
             throw new NotFoundException("There are no products in the cart");
