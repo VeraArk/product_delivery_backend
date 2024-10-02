@@ -1,7 +1,7 @@
 package org.product_delivery_backend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.product_delivery_backend.dto.cartPrductDto.CartProductResponseDto;
+import org.product_delivery_backend.dto.cartProductDto.CartProductResponseDto;
 import org.product_delivery_backend.dto.productDto.*;
 import org.product_delivery_backend.service.CartService;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +26,8 @@ public class CartController {
     }
 
     @GetMapping("/{cartId}")
-    public ResponseEntity<List<ProductResponseDto>> getAllProductsInCart(@PathVariable Long cartId) {
-        List<ProductResponseDto> list = cartService.getProductsInCart(cartId);
+    public ResponseEntity<List<CartProductResponseDto>> getAllProductsInCart(@PathVariable Long cartId) {
+        List<CartProductResponseDto> list = cartService.getProductsInCart(cartId);
         return ResponseEntity.ok(list);
     }
 
@@ -39,9 +39,9 @@ public class CartController {
     }
 
     // очистить корзину
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> clearCart(@PathVariable Long userId) {
-        cartService.clearCart(userId);
+    @DeleteMapping("/{cartId}")
+    public ResponseEntity<?> clearCart(@PathVariable Long cartId) {
+        cartService.clearCart(cartId);
         return ResponseEntity.ok("Cart is empty");
     }
 

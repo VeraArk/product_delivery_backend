@@ -2,7 +2,7 @@ package org.product_delivery_backend.service;
 
 import jakarta.transaction.Transactional;
 import lombok.Data;
-import org.product_delivery_backend.dto.cartPrductDto.CartProductResponseDto;
+import org.product_delivery_backend.dto.cartProductDto.CartProductResponseDto;
 import org.product_delivery_backend.dto.productDto.ProductResponseDto;
 import org.product_delivery_backend.entity.*;
 import org.product_delivery_backend.exceptions.NotFoundException;
@@ -59,14 +59,15 @@ public class CartService {
         }
     }
 
-    public List<ProductResponseDto> getProductsInCart(Long cartId ) {
+    public List<CartProductResponseDto> getProductsInCart(Long cartId ) {
         List<CartProduct> cartProducts = cartProductRepository.findByCartId(cartId);
         if (cartProducts.isEmpty()) {
             throw new NotFoundException("There are no products in the cart");
         }
         return cartProducts.stream()
-                .map(cartProduct -> productMapper.toProductResponseDTO(cartProduct.getProduct())) // Из каждого CartProduct берем Product и маппим в DTO
+                .map(cartProductMapper::toCartProductResponseDto)
                 .toList();
+
     }
     @Transactional
     public void clearCart(Long cartId) {
