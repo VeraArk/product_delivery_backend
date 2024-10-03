@@ -30,7 +30,7 @@ public class CartService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public void addProductToCart(Long userId, Long productId) {
+    public CartProductResponseDto addProductToCart(Long userId, Long productId) {
         Optional<Cart> optionalCart = cartRepository.findCartByUserId(userId);
         Cart existCart = optionalCart.orElseGet(() -> createNewCartForUser(userId));
 
@@ -49,6 +49,7 @@ public class CartService {
             existCartProduct.setSum(product.getPrice());  // Изначально сумма равна цене за один продукт
         }
         cartProductRepository.save(existCartProduct);
+        return cartProductMapper.toCartProductResponseDto(existCartProduct);
     }
     @Transactional
     public void removeProductFromCart(Long cartId, Long productId) {
