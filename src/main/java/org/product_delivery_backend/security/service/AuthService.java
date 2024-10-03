@@ -3,10 +3,14 @@ package org.product_delivery_backend.security.service;
 
 import io.jsonwebtoken.Claims;
 import jakarta.security.auth.message.AuthException;
+import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.entity.User;
+import org.product_delivery_backend.mapper.UserMapper;
+import org.product_delivery_backend.security.dto.AuthResponse;
 import org.product_delivery_backend.security.dto.LoginRequestDto;
 import org.product_delivery_backend.security.dto.RefreshRequestDto;
 import org.product_delivery_backend.security.dto.TokenResponseDto;
+import org.product_delivery_backend.service.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,17 +18,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AuthService {
-    private final UserDetailsService userService;
+    private final UserService userService;
+    private final UserMapper userMapper;
+    private final UserDetailsService userDetailsService;
     private final TokenService tokenService;
     private final BCryptPasswordEncoder passwordEncoder;
     //username : token
     private final Map<String, String> refreshStorage;
 
-    public AuthService(UserDetailsService userService, TokenService tokenService, BCryptPasswordEncoder passwordEncoder) {
+    public AuthService(UserMapper userMapper, UserService userService, UserDetailsService userDetailsService, TokenService tokenService, BCryptPasswordEncoder passwordEncoder) {
+        this.userMapper = userMapper;
         this.userService = userService;
+        this.userDetailsService = userDetailsService;
         this.tokenService = tokenService;
         this.passwordEncoder = passwordEncoder;
         this.refreshStorage = new HashMap<>();
@@ -36,8 +45,12 @@ public class AuthService {
     4. Сохранить refresh-токен в хранилище
     5. Сформировать ответ
      */
-    public TokenResponseDto login(LoginRequestDto loginRequestDto) throws AuthException {
-        UserDetails foundUser = userService.loadUserByUsername(loginRequestDto.username());
+    public AuthResponse login(LoginRequestDto loginRequestDto) throws AuthException {
+        UserDetails foundUser = userDetailsService.loadUserByUsername(loginRequestDto.username());
+        Optional<User> userForResponse = userService.getUserByEmail(loginRequestDto.username());
+        if (!userForResponse.isPresent()) {
+            throw new AuthException("User not found");
+        }
 
         if(passwordEncoder.matches(loginRequestDto.password(), foundUser.getPassword())) {
             String accessToken = tokenService.generateAccessToken(foundUser);
@@ -45,7 +58,7 @@ public class AuthService {
 
             refreshStorage.put(foundUser.getUsername(), refreshToken);
 
-            return new TokenResponseDto(accessToken, refreshToken);
+            return new AuthResponse(new TokenResponseDto(accessToken, refreshToken), new UserResponseDto(userMapper.toResponse(userForResponse.get())));
         }
 
         throw new AuthException("Incorrect login and/or password");
@@ -73,7 +86,7 @@ public class AuthService {
         boolean isSaved = token.equals(savedToken);
 
         if(isValid && isSaved) {
-            UserDetails foundUser = userService.loadUserByUsername(username);
+            UserDetails foundUser = userDetailsService.loadUserByUsername(username);
             String accessToken = tokenService.generateAccessToken(foundUser);
 
             return new TokenResponseDto(accessToken, token);
