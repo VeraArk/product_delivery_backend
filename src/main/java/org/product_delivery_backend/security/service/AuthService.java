@@ -48,7 +48,7 @@ public class AuthService {
     public AuthResponse login(LoginRequestDto loginRequestDto) throws AuthException {
         UserDetails foundUser = userDetailsService.loadUserByUsername(loginRequestDto.username());
         Optional<User> userForResponse = userService.getUserByEmail(loginRequestDto.username());
-        if (!userForResponse.isPresent()) {
+        if (userForResponse.isEmpty()) {
             throw new AuthException("User not found");
         }
 
