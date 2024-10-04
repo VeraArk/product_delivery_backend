@@ -25,9 +25,9 @@ public class CartController {
         return ResponseEntity.ok(cartService.addProductToCart(userId, productId));
     }
 
-    @GetMapping("/{cartId}")
-    public ResponseEntity<List<CartProductResponseDto>> getAllProductsInCart(@PathVariable Long cartId) {
-        List<CartProductResponseDto> list = cartService.getProductsInCart(cartId);
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<CartProductResponseDto>> getAllProductsInCart(@PathVariable Long userId) {
+        List<CartProductResponseDto> list = cartService.getProductsInCart(userId);
         return ResponseEntity.ok(list);
     }
 
