@@ -62,8 +62,12 @@ public class CartService {
     }
 
 
-    public List<CartProductResponseDto> getProductsInCart(Long cartId ) {
-
+    public List<CartProductResponseDto> getProductsInCart(Long userId ) {
+        Long cartId = 0L;
+        Optional<Cart> optionalCart = cartRepository.findCartByUserId(userId);
+        if (optionalCart.isPresent()) {
+            cartId = optionalCart.get().getId();
+        }
         List<CartProduct> cartProducts = cartProductRepository.findByCartId(cartId);
         if (cartProducts.isEmpty()) {
             throw new NotFoundException("There are no products in the cart");
