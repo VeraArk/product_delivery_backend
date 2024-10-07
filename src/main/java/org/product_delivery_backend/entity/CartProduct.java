@@ -3,6 +3,7 @@ package org.product_delivery_backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 @Table(name = "cart_products")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CartProduct {
 
     @Id
@@ -30,7 +32,6 @@ public class CartProduct {
     private Product product;
 
     @Column(name = "product_quantity")
-    @NotNull
     @Min(1)
     private Integer productQuantity;
 
