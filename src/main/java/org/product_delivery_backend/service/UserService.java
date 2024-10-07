@@ -2,11 +2,14 @@ package org.product_delivery_backend.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.product_delivery_backend.dto.userDto.UserProfileDto;
 import org.product_delivery_backend.dto.userDto.UserRequestDto;
 import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.mapper.UserMapper;
 import org.product_delivery_backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserMapper userMapper;
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Transactional
     public UserResponseDto registerUser(UserRequestDto request) {
@@ -44,6 +48,23 @@ public class UserService {
 
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findUserByEmail(email);
+    }
+
+
+    public UserProfileDto getUserProfileByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            User u = user.get();
+            return UserProfileDto.builder()
+                    .firstName(u.getFirstName())
+                    .lastName(u.getLastName())
+                    .email(u.getEmail())
+                    .phone(u.getPhone())
+                    .build();
+        } else {
+            logger.error("User with E-Mail " + email + " not found");
+            throw new RuntimeException("User not found");
+        }
     }
 
 
