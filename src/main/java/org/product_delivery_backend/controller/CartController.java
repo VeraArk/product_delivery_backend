@@ -21,10 +21,11 @@ public class CartController {
     public ResponseEntity<CartProductResponseDto> addItemToCart(
             @PathVariable Long userId,
             @PathVariable Long productId) {
+
         return ResponseEntity.ok(cartService.addProductToCart(userId, productId));
     }
 
-    @GetMapping("/{UserId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<List<CartProductResponseDto>> getAllProductsInCart(@PathVariable Long userId) {
         List<CartProductResponseDto> list = cartService.getProductsInCart(userId);
         return ResponseEntity.ok(list);

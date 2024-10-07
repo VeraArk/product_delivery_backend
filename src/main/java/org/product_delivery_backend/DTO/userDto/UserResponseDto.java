@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.product_delivery_backend.entity.Role;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,5 +19,14 @@ public class UserResponseDto {
     private String lastName;
     private String email;
     private String phone;
-    private Role role;
+    private Set<Role> roles;
+
+    public UserResponseDto(UserResponseDto response) {
+        this.id = response.getId();
+        this.firstName = response.getFirstName();
+        this.lastName = response.getLastName();
+        this.email = response.getEmail();
+        this.phone = response.getPhone();
+        this.roles = response.getRoles();
+    }
 }
