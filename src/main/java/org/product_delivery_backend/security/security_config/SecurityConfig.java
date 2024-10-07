@@ -45,16 +45,12 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/products/page").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/cart").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/cart/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/cart").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/cart/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/files/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/files/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
+                        .anyRequest().authenticated()
 
                 );
 
