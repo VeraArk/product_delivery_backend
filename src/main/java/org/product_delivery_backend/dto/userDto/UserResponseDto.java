@@ -29,4 +29,5 @@ public class UserResponseDto {
         this.phone = response.getPhone();
         this.roles = response.getRoles();
     }
+
 }
