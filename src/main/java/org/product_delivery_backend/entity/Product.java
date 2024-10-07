@@ -32,23 +32,22 @@ public class Product {
     private BigDecimal price;
 
     @Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "The product code can only contain letters, numbers, hyphens and underscores.")
-
     @NotBlank(message = "The Field \"productCode\" must not be empty")
     @Size(min = 2, max = 32, message = "The product code must contain from 2 to 32 characters")
     @Column(name="product_code")
     private String productCode;
 
-    @Pattern(regexp = "^[0-9.]+(\\s?(g|kg|ml|l))$", message = "The weight/volume must contain a number followed by a valid unit (g, kg, ml, l).")
+    @Pattern(regexp = "^[0-9.]+(\\s?(g|kg|ml|l|p))$", message = "The weight/volume must contain a number followed by a valid unit (g, kg, ml, l).")
     @Size(min = 2, max = 10, message = "The weight/volume must be between 2 and 10 characters long.")
     @Column(name="min-quantity")
     private String minQuantity;
 
-    @Pattern(regexp = "^[A-Za-z0-9.,-:;()?!\\s]+$", message = "The product code can only contain letters, numbers.")
+//    @Pattern(regexp = "^[A-Za-z0-9.,-:;()?!\\s]+$", message = "The description can only contain letters, numbers.")
     @NotBlank(message = "The Field \"description\" must not be empty")
-    @Size(min = 10, max = 255, message = "The product code must contain from 10 to 255 characters")
+    @Size(min = 10, max = 255, message = "The description must contain from 10 to 255 characters")
     private String description;
 
-    @URL(message = "Invalid URL format")
+//    @URL(message = "Invalid URL format")
     // на случай если ссылка будет хранится в базе
     //@Pattern(regexp = "^[A-Za-z0-9/._-]+$", message = "Invalid file path")
     //@Size(max = 255, message = "File path is too long")

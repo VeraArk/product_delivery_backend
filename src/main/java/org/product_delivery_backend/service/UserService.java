@@ -46,6 +46,27 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+
+
+    public UserProfileDto getUserProfileByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            User u = user.get();
+            return UserProfileDto.builder()
+                    .firstName(u.getFirstName())
+                    .lastName(u.getLastName())
+                    .email(u.getEmail())
+                    .phone(u.getPhone())
+                    .build();
+        } else {
+            logger.error("User with E-Mail " + email + " not found");
+            throw new RuntimeException("User not found");
+        }
+    }
+
 
     public UserProfileDto getUserProfileByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
