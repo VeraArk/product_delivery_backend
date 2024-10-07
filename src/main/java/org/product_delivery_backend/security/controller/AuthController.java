@@ -3,6 +3,7 @@ package org.product_delivery_backend.security.controller;
 
 import jakarta.security.auth.message.AuthException;
 import org.product_delivery_backend.dto.userDto.UserProfileDto;
+import org.product_delivery_backend.security.dto.AuthResponse;
 import org.product_delivery_backend.security.dto.LoginRequestDto;
 import org.product_delivery_backend.security.dto.RefreshRequestDto;
 import org.product_delivery_backend.security.dto.TokenResponseDto;
@@ -27,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public TokenResponseDto login(@RequestBody LoginRequestDto loginRequestDto) {
+    public AuthResponse login(@RequestBody LoginRequestDto loginRequestDto) {
         try {
             return authService.login(loginRequestDto);
         } catch (AuthException e) {
