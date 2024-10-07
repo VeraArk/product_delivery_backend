@@ -1,5 +1,6 @@
 package org.product_delivery_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.product_delivery_backend.dto.productDto.*;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 
 
 import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponseDto> addProduct(@RequestBody ProductRequestDto productRequestDto) {
+    public ResponseEntity<ProductResponseDto> addProduct(@Valid @RequestBody ProductRequestDto productRequestDto) {
         ProductResponseDto productResponseDto = productService.addProduct(productRequestDto);
         return new ResponseEntity<>(productResponseDto, HttpStatus.CREATED);
     }

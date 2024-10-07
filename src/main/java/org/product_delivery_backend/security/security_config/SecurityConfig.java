@@ -1,6 +1,8 @@
 package org.product_delivery_backend.security.security_config;
 
 
+import jakarta.servlet.http.HttpServletResponse;
+import org.product_delivery_backend.security.JwtAuthenticationEntryPoint;
 import org.product_delivery_backend.security.filter.TokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,9 +22,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final TokenFilter tokenFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    public SecurityConfig(TokenFilter tokenFilter) {
+    public SecurityConfig(TokenFilter tokenFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
         this.tokenFilter = tokenFilter;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
     @Bean
@@ -32,6 +36,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login","/api/auth/refresh").permitAll()
@@ -44,10 +51,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/cart/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/files/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
                         .anyRequest().permitAll()
+
                 );
 
        return http.build();

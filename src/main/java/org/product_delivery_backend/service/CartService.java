@@ -25,7 +25,6 @@ public class CartService {
     private final ProductMapper productMapper;
     private final CartProductMapper cartProductMapper;
     private final UserRepository userRepository;
-    private final CartProductMapper cartItemMapper;
     private final ProductService productService;
     private final ProductRepository productRepository;
 
