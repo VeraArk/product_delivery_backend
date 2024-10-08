@@ -3,6 +3,7 @@ package org.product_delivery_backend.security.controller;
 
 import jakarta.security.auth.message.AuthException;
 import org.product_delivery_backend.dto.userDto.UserProfileDto;
+import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.security.dto.AuthResponse;
 import org.product_delivery_backend.security.dto.LoginRequestDto;
 import org.product_delivery_backend.security.dto.RefreshRequestDto;
@@ -47,14 +48,15 @@ public class AuthController {
 
 
     @GetMapping("/profile")
-    public UserProfileDto getUserProfile() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+    public UserResponseDto getUserProfile() {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+       String username = authentication.getPrincipal().toString();
 
 
-        logger.info("Authenticated user: " + username);
+        logger.info("Authenticated user: " + authentication);
 
         return userService.getUserProfileByEmail(username);
+
     }
 
 
