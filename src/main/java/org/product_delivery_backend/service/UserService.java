@@ -64,7 +64,7 @@ public class UserService {
                     .roles(u.getRoles())
                     .build();
         } else {
-            logger.error("User with E-Mail " + username + " not found");
+           
             throw new RuntimeException("User not found");
         }
     }
