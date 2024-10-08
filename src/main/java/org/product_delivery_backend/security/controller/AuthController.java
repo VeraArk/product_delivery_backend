@@ -48,13 +48,14 @@ public class AuthController {
 
     @GetMapping("/profile")
     public UserProfileDto getUserProfile() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+       String username = authentication.getPrincipal().toString();
 
 
-        logger.info("Authenticated user: " + username);
+        logger.info("Authenticated user: " + authentication);
 
         return userService.getUserProfileByEmail(username);
+
     }
 
 

@@ -51,8 +51,8 @@ public class UserService {
     }
 
 
-    public UserProfileDto getUserProfileByEmail(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
+    public UserProfileDto getUserProfileByEmail(String username) {
+        Optional<User> user = userRepository.findByEmail(username);
         if (user.isPresent()) {
             User u = user.get();
             return UserProfileDto.builder()
@@ -62,7 +62,7 @@ public class UserService {
                     .phone(u.getPhone())
                     .build();
         } else {
-            logger.error("User with E-Mail " + email + " not found");
+            logger.error("User with E-Mail " + username + " not found");
             throw new RuntimeException("User not found");
         }
     }
