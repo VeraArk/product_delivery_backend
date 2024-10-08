@@ -12,15 +12,14 @@ import org.product_delivery_backend.entity.Cart;
 import org.product_delivery_backend.entity.CartProduct;
 import org.product_delivery_backend.entity.Product;
 import org.product_delivery_backend.entity.User;
+import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.mapper.CartProductMapper;
-import org.product_delivery_backend.mapper.ProductMapper;
 import org.product_delivery_backend.repository.CartProductRepository;
 import org.product_delivery_backend.repository.CartRepository;
-import org.product_delivery_backend.repository.ProductRepository;
 import org.product_delivery_backend.repository.UserRepository;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,21 +41,14 @@ class CartServiceTest {
     private UserRepository userRepository;
     @Mock
     private ProductService productService;
-    @Mock
-    private ProductRepository productRepository;
-    @Mock
-    private ProductMapper productMapper;
 
     @InjectMocks
     private CartService cartService;
 
     private Cart cart;
     private CartProduct cartProduct;
-    private CartProduct cartProduct2;
     private CartProductResponseDto cartProductResponseDto;
-    private CartProductResponseDto cartProductResponseDto2;
     private Product product;
-    private Product product2;
     private User user;
 
     @BeforeEach
@@ -67,14 +59,6 @@ class CartServiceTest {
                 .title("Product1")
                 .price(BigDecimal.valueOf(1.99))
                 .minQuantity("250g")
-                .photoLink("wwww.anysite.com")
-                .build();
-
-        product2 = Product.builder()
-                .id(9L)
-                .title("Product2")
-                .price(BigDecimal.valueOf(3.99))
-                .minQuantity("1l")
                 .photoLink("wwww.anysite.com")
                 .build();
 
@@ -99,12 +83,6 @@ class CartServiceTest {
                 .product(product)
                 .build();
 
-        cartProduct2 = CartProduct.builder()
-                .id(5L)
-                .cart(cart)
-                .product(product2)
-                .build();
-
         cartProductResponseDto = CartProductResponseDto.builder()
                 .id(1L)
                 .cartId(7L)
@@ -113,17 +91,11 @@ class CartServiceTest {
                 .sum(BigDecimal.valueOf(1.99))
                 .build();
 
-        cartProductResponseDto2 = CartProductResponseDto.builder()
-                .id(5L)
-                .cartId(7L)
-                .productId(9L)
-                .productQuantity(1)
-                .sum(BigDecimal.valueOf(3.99))
-                .build();
     }
 
     @Test
     void addProductToCartTest() {
+
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.empty());
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
@@ -135,13 +107,12 @@ class CartServiceTest {
 
         when(cartProductRepository.save(any(CartProduct.class))).thenReturn(cartProduct);
 
-        // Используем any() для игнорирования конкретных значений полей в CartProduct
+        // Используем any(), чтобы избежать конкретных значений полей в CartProduct
         when(cartProductMapper.toCartProductResponseDto(any(CartProduct.class))).thenReturn(cartProductResponseDto);
 
         CartProductResponseDto result = cartService.addProductToCart(user.getId(), product.getId());
 
         assertNotNull(result);
-
 
         verify(cartRepository).findCartByUserId(user.getId());
         verify(cartRepository).save(any(Cart.class));
@@ -161,20 +132,31 @@ class CartServiceTest {
     }
 
     @Test
-    void getProductsInCart() {
+    void getProductsInCart_cartExist() {
 
-        List<CartProduct> cartProducts = Arrays.asList(cartProduct, cartProduct2);
+        when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
+        when(cartProductRepository.findByCartId(cart.getId())).thenReturn(List.of(cartProduct));
+        when(cartProductMapper.toCartProductResponseDto(cartProduct)).thenReturn(cartProductResponseDto);
 
-        when(cartProductRepository.findByCartId(cart.getId())).thenReturn(cartProducts);
-        when(cartProductMapper.toCartProductResponseDto(cartProducts.get(0))).thenReturn(cartProductResponseDto);
-        when(cartProductMapper.toCartProductResponseDto(cartProducts.get(1))).thenReturn(cartProductResponseDto2);
+        List<CartProductResponseDto> result = cartService.getProductsInCart(user.getId());
 
-        List<CartProductResponseDto> result = cartService.getProductsInCart(cart.getId());
-
-        assertEquals(2, result.size());
+        assertNotNull(result);
+        assertEquals(1, result.size());  // Убеждаемся, что один продукт в корзине
+        verify(cartRepository).findCartByUserId(user.getId());
         verify(cartProductRepository).findByCartId(cart.getId());
-        verify(cartProductMapper).toCartProductResponseDto(cartProducts.get(0));
-        verify(cartProductMapper).toCartProductResponseDto(cartProducts.get(1));
+        verify(cartProductMapper).toCartProductResponseDto(cartProduct);
+    }
+
+    @Test
+    void getProductsInCart_cartNotFound_noProducts() {
+
+        when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.empty());
+        when(cartProductRepository.findByCartId(0L)).thenReturn(Collections.emptyList());
+
+        assertThrows(NotFoundException.class, () -> cartService.getProductsInCart(user.getId()));
+
+        verify(cartRepository).findCartByUserId(user.getId());
+        verify(cartProductRepository).findByCartId(0L);
     }
 
     @Test
@@ -188,7 +170,7 @@ class CartServiceTest {
     @Test
     void updateCartProduct() {
 
-        int productQuantity =2;
+        int productQuantity = 2;
 
         when(cartProductRepository.findByCartIdAndProductId(cart.getId(), product.getId())).thenReturn(Optional.of(cartProduct));
         when(productService.findProductByIdInCart(product.getId())).thenReturn(product);

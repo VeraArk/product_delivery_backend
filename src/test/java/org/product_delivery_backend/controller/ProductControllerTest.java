@@ -3,8 +3,6 @@ package org.product_delivery_backend.controller;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.product_delivery_backend.dto.productDto.AllProductResponseDto;
 import org.product_delivery_backend.dto.productDto.ProductRequestDto;
@@ -16,7 +14,6 @@ import org.product_delivery_backend.repository.RoleRepository;
 import org.product_delivery_backend.repository.UserRepository;
 import org.product_delivery_backend.security.dto.LoginRequestDto;
 import org.product_delivery_backend.security.dto.TokenResponseDto;
-import org.product_delivery_backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -28,12 +25,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -42,9 +37,14 @@ class ProductControllerTest {
 
     @LocalServerPort
     private int port;
-
     private TestRestTemplate template;
     private HttpHeaders headers;
+
+
+    ProductResponseDto responseDto;
+    private String adminAccessToken;
+    private String userAccessToken;
+
     @Autowired
     private BCryptPasswordEncoder encoder;
     @Autowired
@@ -52,17 +52,6 @@ class ProductControllerTest {
     @Autowired
     private RoleRepository roleRepository;
 
-    @Mock
-    private ProductService productService;
-
-    @Mock
-    ProductResponseDto responseDto;
-
-    @InjectMocks
-    private ProductController productController;
-
-    private String adminAccessToken;
-    private String userAccessToken;
 
     private static final String TEST_PRODUCT_TITLE = "TestProduct";
     private static final int TEST_PRODUCT_PRICE = 12;
@@ -78,7 +67,7 @@ class ProductControllerTest {
     private static final String PHONE_ADMIN = "PHONE_ADMIN";
     private static final String PHONE_USER = "PHONE_USER";
 
-    private static final String TEST_PASSWORD ="$2a$10$G0JgWc2R.9uDn0Wn5BT9XO012sYVwSm482V0UfTPb7MqDk6fRfJVO";
+    private static final String TEST_PASSWORD = "$2a$10$G0JgWc2R.9uDn0Wn5BT9XO012sYVwSm482V0UfTPb7MqDk6fRfJVO";
     private static final String ROLE_ADMIN_TITLE = "ROLE_ADMIN";
     private static final String ROLE_USER_TITLE = "ROLE_USER";
 
@@ -91,8 +80,9 @@ class ProductControllerTest {
 
     @BeforeEach
     public void setUp() {
-        template = new TestRestTemplate();
+        template = new TestRestTemplate(); //отправляет запросы
         headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Создаем тестовый продукт
         responseDto = new ProductResponseDto();
@@ -104,17 +94,18 @@ class ProductControllerTest {
         responseDto.setDescription(TEST_DESCRIPTION);
         responseDto.setPhotoLink(FOTO_LINK);
 
-        Role roleUser = null;
+        Role roleUser=null;
         Role roleAdmin;
 
         // Пытаемся найті тестовых пользователей в БД
-        User admin = userRepository.findUserByEmail(TEST_ADMIN_EMAIL).orElse(null);
-        User user = userRepository.findUserByEmail(TEST_USER_EMAIL).orElse(null);
+        User admin = userRepository.findByEmail(TEST_ADMIN_EMAIL).orElse(null);
+        User user = userRepository.findByEmail(TEST_USER_EMAIL).orElse(null);
 
         //если их нет в БД, создаем
         if (admin == null) {
             roleAdmin = roleRepository.findByTitle(ROLE_ADMIN_TITLE).orElseThrow(() -> new NotFoundException("Role ADMIN is not found"));
             roleUser = roleRepository.findByTitle(ROLE_USER_TITLE).orElseThrow(() -> new NotFoundException("Role USER not found in DB"));
+
             admin = new User();
             admin.setFirstName(FIRST_NAME);
             admin.setLastName(LAST_NAME);
@@ -163,7 +154,7 @@ class ProductControllerTest {
 
         TokenResponseDto tokenResponseDto = response.getBody();
 
-        System.out.println("Authorization response: " + response.getStatusCode() + " - " + response.getBody());
+        System.out.println("Authorization response body: "  + " - " + response.getBody());
 
         adminAccessToken = BEARER_TOKEN_PREFIX + tokenResponseDto.getAccessToken();
 
@@ -220,6 +211,8 @@ class ProductControllerTest {
     @Test
     @Order(3)
     public void addProduct() {
+
+
         String url = "http://localhost:" + port + PRODUCTS_RESOURCE_NAME;
 
         ProductRequestDto productRequest = new ProductRequestDto("New Product", new BigDecimal(15), "123", "500g", "Description", "photoLink");
@@ -257,7 +250,10 @@ class ProductControllerTest {
     @Test
     @Order(6)
     public void deleteProduct() {
-        String url = "http://localhost:" + port + PRODUCTS_RESOURCE_NAME + "/1";
+        String url = "http://localhost:" + port + PRODUCTS_RESOURCE_NAME + "/99";
+
+        headers.setBearerAuth(adminAccessToken);
+        System.out.println(adminAccessToken);
 
         ResponseEntity<Void> response = template.exchange(
                 url,
@@ -285,10 +281,10 @@ class ProductControllerTest {
 }
 
 
-
-
-
-
+//
+//
+//
+//
 //
 //
 //

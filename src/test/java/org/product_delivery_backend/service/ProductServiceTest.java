@@ -11,7 +11,6 @@ import org.product_delivery_backend.dto.productDto.ProductRequestDto;
 import org.product_delivery_backend.dto.productDto.ProductResponseDto;
 import org.product_delivery_backend.entity.Product;
 import org.product_delivery_backend.exceptions.NotFoundException;
-import org.product_delivery_backend.exceptions.ValidationException;
 import org.product_delivery_backend.mapper.ProductMapper;
 import org.product_delivery_backend.repository.ProductRepository;
 
@@ -19,7 +18,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.product_delivery_backend.security.dto.TokenResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -102,8 +100,6 @@ class ProductServiceTest {
                 .photoLink("wwww.anysite.com")
                 .build();
 
-
-
     }
 
     @Test
@@ -128,6 +124,7 @@ class ProductServiceTest {
     @Test
     void findAllProduct_emptyList() {
         when(productRepository.findAll()).thenReturn(List.of());
+
         List<AllProductResponseDto> result = productService.findAllProduct();
 
         assertTrue(result.isEmpty());
@@ -136,11 +133,14 @@ class ProductServiceTest {
     @Test
     void findAllProductPage_success() {
         Page<Product> productPage = new PageImpl<>(List.of(product, product2));
+
         when(productRepository.findAll(any(Pageable.class))).thenReturn(productPage);
         when(productMapper.toAllProductResponseDTO(product)).thenReturn(allProductResponseDto);
         when(productMapper.toAllProductResponseDTO(product2)).thenReturn(allProductResponseDto2);
 
         Page<AllProductResponseDto> result = productService.findAllProductPage(PageRequest.of(0, 2));
+        // 0-номер первой страницы при пагинации. 2- количество элементов на странице.
+        //PageRequest.of(0, 2) создает запрос на первую страницу (с индексом 0), где будет содержаться 2 продукта.
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.getTotalElements());
@@ -217,5 +217,4 @@ class ProductServiceTest {
 
         assertThrows(NotFoundException.class, () -> productService.findProductByIdInCart(1L));
     }
-
 }
