@@ -50,6 +50,7 @@ public class CartService {
         cartProductRepository.save(existCartProduct);
         return cartProductMapper.toCartProductResponseDto(existCartProduct);
     }
+
     @Transactional
     public void removeProductFromCart(Long cartId, Long productId) {
         Optional<CartProduct> optionalCartProduct = cartProductRepository.findByCartIdAndProductId(cartId, productId);
@@ -59,7 +60,6 @@ public class CartService {
             cartProductRepository.deleteByCartIdAndProductId(cartId, productId);
         }
     }
-
 
     public List<CartProductResponseDto> getProductsInCart(Long userId ) {
         Long cartId = 0L;
@@ -74,8 +74,8 @@ public class CartService {
         return cartProducts.stream()
                 .map(cartProductMapper::toCartProductResponseDto)
                 .toList();
-
     }
+
     @Transactional
     public void clearCart(Long cartId) {
         cartProductRepository.deleteAllByCartId(cartId);
