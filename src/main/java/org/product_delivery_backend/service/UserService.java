@@ -6,10 +6,13 @@ import org.product_delivery_backend.dto.userDto.UserProfileDto;
 import org.product_delivery_backend.dto.userDto.UserRequestDto;
 import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.entity.User;
+import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.mapper.UserMapper;
 import org.product_delivery_backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +70,13 @@ public class UserService {
            
             throw new RuntimeException("User not found");
         }
+    }
+
+    public User getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getPrincipal().toString();
+        Optional<User> optionalUser = getUserByEmail(userName);
+        return optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
     }
 
 
