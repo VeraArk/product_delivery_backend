@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="update-order-status-values" author="VeraArkind">
+        <sql>
+            ALTER TABLE orders
+            ALTER COLUMN order_status TYPE order_status
+            USING order_status::order_status;
+        </sql>
+
+        <sql>
+            ALTER TABLE orders
+            ALTER COLUMN payment_method TYPE payment_method
+            USING payment_method::payment_method;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

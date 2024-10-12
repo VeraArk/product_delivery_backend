@@ -26,7 +26,6 @@ public class CartService {
     private final CartProductMapper cartProductMapper;
     private final UserRepository userRepository;
     private final ProductService productService;
-    private final ProductRepository productRepository;
 
     @Transactional
     public CartProductResponseDto addProductToCart(Long userId, Long productId) {

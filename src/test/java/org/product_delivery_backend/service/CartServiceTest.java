@@ -64,7 +64,7 @@ class CartServiceTest {
 
 
         user = User.builder()
-                .id(6L)
+                .id(7L)
                 .firstName("firstName")
                 .lastName("lastName")
                 .email("ggggg@mail.ru")
