@@ -6,10 +6,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.product_delivery_backend.dto.productDto.*;
-import org.product_delivery_backend.mapper.ProductMapper;
+import org.product_delivery_backend.exceptions.InvalidDataException;
+import org.product_delivery_backend.exceptions.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +42,10 @@ public class ProductController {
     })
     @GetMapping
     public ResponseEntity<List<AllProductResponseDto>> findAll() {
+        List<AllProductResponseDto> products = productService.findAllProduct();
+        if (products.isEmpty()) {
+            throw new NotFoundException("No products found.");
+        }
         return new ResponseEntity<>(productService.findAllProduct(), HttpStatus.OK);
     }
 
@@ -60,7 +64,14 @@ public class ProductController {
     })
     @GetMapping("/page")
     public ResponseEntity<Page<AllProductResponseDto>> findAllPage(@RequestParam int page, @RequestParam int size) {
+        if (page < 0 || size <= 0) {
+            throw new InvalidDataException("Invalid pagination parameters.");
+        }
         Pageable pageable = PageRequest.of(page, size);
+        Page<AllProductResponseDto> productPage = productService.findAllProductPage(pageable);
+        if (productPage.isEmpty()) {
+            throw new NotFoundException("No products found on this page.");
+        }
         return new ResponseEntity<>(productService.findAllProductPage(pageable), HttpStatus.OK);
     }
 
@@ -79,6 +90,9 @@ public class ProductController {
     })
     @PostMapping
     public ResponseEntity<ProductResponseDto> addProduct(@RequestBody ProductRequestDto productRequestDto) {
+        if (productRequestDto.getTitle() == null || productRequestDto.getTitle().isEmpty()) {
+            throw new InvalidDataException("Product title cannot be empty.");
+        }
         ProductResponseDto productResponseDto = productService.addProduct(productRequestDto);
         return new ResponseEntity<>(productResponseDto, HttpStatus.CREATED);
     }
@@ -92,6 +106,10 @@ public class ProductController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<ProductResponseDto> deleteProduct(@PathVariable("id") Long id) {
+        ProductResponseDto product = productService.findProductById(id);
+        if (product == null) {
+            throw new NotFoundException("Product not found.");
+        }
         productService.deleteProduct(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -109,6 +127,10 @@ public class ProductController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDto> findByID(@PathVariable("id") Long id) {
+        ProductResponseDto product = productService.findProductById(id);
+        if (product == null) {
+            throw new NotFoundException("Product not found.");
+        }
         return new ResponseEntity<>(productService.findProductById(id), HttpStatus.OK);
 
     }

@@ -14,7 +14,10 @@ import org.product_delivery_backend.dto.orderDto.OrderRequestDto;
 import org.product_delivery_backend.dto.orderDto.OrderResponseDto;
 import org.product_delivery_backend.entity.OrderStatus;
 import org.product_delivery_backend.entity.User;
+import org.product_delivery_backend.exceptions.InvalidDataException;
+import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.exceptions.OrderException;
+import org.product_delivery_backend.repository.OrderRepsitory;
 import org.product_delivery_backend.service.OrderService;
 import org.product_delivery_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +32,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final UserService userService;
+    private final OrderRepsitory orderRepsitory;
 
     @Operation(summary = "Create a new order",
             description = "Create a new order for the currently logged-in user.")
@@ -45,6 +49,9 @@ public class OrderController {
     @PostMapping()
     public ResponseEntity<OrderResponseDto> createOrder() {
         User user = userService.getUser();
+        if (user == null) {
+            throw new NotFoundException("User not found.");
+        }
         return ResponseEntity.ok(orderService.createOrder(user.getId()));
     }
 
@@ -63,6 +70,9 @@ public class OrderController {
     @PutMapping("/confirmed")
     public ResponseEntity<UpdateStatusOrderResponseDto> confirmOrder(
             @RequestBody OrderRequestDto orderRequestDto) {
+        if (orderRequestDto.getId() == null) {
+            throw new InvalidDataException("Order ID cannot be null.");
+        }
         return ResponseEntity.ok(orderService.confirmOrder(orderRequestDto));
     }
 
@@ -81,6 +91,10 @@ public class OrderController {
     @PutMapping("/paid/{orderId}")
     public ResponseEntity<UpdateStatusOrderResponseDto> payForOrder(
             @PathVariable Long orderId) {
+        OrderResponseDto order = orderService.findOrderById(orderId);
+        if (order == null) {
+            throw new NotFoundException("Order not found.");
+        }
         return ResponseEntity.ok(orderService.payForOrder(orderId));
     }
 
@@ -98,6 +112,10 @@ public class OrderController {
     })
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<UpdateStatusOrderResponseDto> cancelOrder(@PathVariable Long orderId) throws OrderException {
+        OrderResponseDto order = orderService.findOrderById(orderId);
+        if (order == null) {
+            throw new NotFoundException("Order not found.");
+        }
         UpdateStatusOrderResponseDto responseDto = orderService.cancelOrder(orderId);
         return ResponseEntity.ok(responseDto);
     }
@@ -113,6 +131,10 @@ public class OrderController {
     })
     @DeleteMapping("/{orderId}")
     public ResponseEntity<String> clearOrder(@PathVariable Long orderId) {
+        OrderResponseDto order = orderService.findOrderById(orderId);
+        if (order == null) {
+            throw new NotFoundException("Order not found.");
+        }
         orderService.clearOrder(orderId);
         return ResponseEntity.ok("Order cleared");
     }

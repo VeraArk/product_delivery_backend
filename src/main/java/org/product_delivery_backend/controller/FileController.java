@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.product_delivery_backend.entity.FileMetadata;
+import org.product_delivery_backend.exceptions.InvalidDataException;
+import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -37,6 +39,9 @@ public class FileController {
     })
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new InvalidDataException("File cannot be empty.");
+        }
         var id = fileService.store(file);
 
         return ResponseEntity.ok(id.toString());
@@ -58,6 +63,9 @@ public class FileController {
         Resource resource = got.getFirst();
         FileMetadata media = got.getSecond();
 
+        if (resource == null) {
+            throw new NotFoundException("File not found.");
+        }
         HttpHeaders headers = new HttpHeaders();
 
         String contentType = "application/octet-stream";

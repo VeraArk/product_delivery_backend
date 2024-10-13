@@ -23,6 +23,9 @@ public class ProductService {
 
     public List<AllProductResponseDto> findAllProduct() {
         List<Product> products = productRepository.findAll();
+        if (products.isEmpty()) {
+            throw new NotFoundException("No products found.");
+        }
         return products.stream()
                 .map(productMapper::toAllProductResponseDTO)
                 .collect(Collectors.toList());

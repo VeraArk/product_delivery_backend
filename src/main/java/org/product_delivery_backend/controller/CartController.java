@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.product_delivery_backend.dto.cartProductDto.CartProductResponseDto;
 import org.product_delivery_backend.entity.User;
+import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.service.CartService;
 import org.product_delivery_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,9 @@ public class CartController {
     @PostMapping("/{productId}")
     public ResponseEntity<CartProductResponseDto> addItemToCart(@PathVariable Long productId) {
         User user = userService.getUser();
+        if (user == null) {
+            throw new NotFoundException("User not found.");
+        }
         return ResponseEntity.ok(cartService.addProductToCart(user.getId(), productId));
     }
 
@@ -52,7 +56,13 @@ public class CartController {
     @GetMapping()
     public ResponseEntity<List<CartProductResponseDto>> getAllProductsInCart() {
         User user = userService.getUser();
+        if (user == null) {
+            throw new NotFoundException("User not found.");
+        }
         List<CartProductResponseDto> list = cartService.getProductsInCart(user.getId());
+        if (list.isEmpty()) {
+            throw new NotFoundException("Cart is empty.");
+        }
         return ResponseEntity.ok(list);
     }
 
@@ -69,7 +79,13 @@ public class CartController {
     @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteByCartItemId(@PathVariable Long productId) {
         User user = userService.getUser();
+        if (user == null) {
+            throw new NotFoundException("User not found.");
+        }
         Long cartId = cartService.findCartByUserId(user.getId());
+        if (cartId == null) {
+            throw new NotFoundException("Product not found in cart.");
+        }
         cartService.removeProductFromCart(cartId, productId);
         return ResponseEntity.ok("Product removed");
     }
@@ -86,7 +102,13 @@ public class CartController {
     @DeleteMapping()
     public ResponseEntity<?> clearCart() {
         User user = userService.getUser();
+        if (user == null) {
+            throw new NotFoundException("User not found.");
+        }
         Long cartId = cartService.findCartByUserId(user.getId());
+        if (cartId == null) {
+            throw new NotFoundException("Product not found in cart.");
+        }
         cartService.clearCart(cartId);
         return ResponseEntity.ok("Cart is empty");
     }
@@ -105,7 +127,13 @@ public class CartController {
     @PutMapping("/{productId}/{productQuantity}")
     public ResponseEntity<CartProductResponseDto> updateCartProduct(@PathVariable Long productId, @PathVariable Integer productQuantity) {
         User user = userService.getUser();
+        if (user == null) {
+            throw new NotFoundException("User not found.");
+        }
         Long cartId = cartService.findCartByUserId(user.getId());
+        if (cartId == null) {
+            throw new NotFoundException("Product not found in cart.");
+        }
         CartProductResponseDto cartProductResponseDto = cartService.updateCartProduct(cartId, productId, productQuantity);
         return ResponseEntity.ok(cartProductResponseDto);
     }

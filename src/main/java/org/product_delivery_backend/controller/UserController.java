@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.product_delivery_backend.dto.userDto.UserRequestDto;
 import org.product_delivery_backend.dto.userDto.UserResponseDto;
+import org.product_delivery_backend.exceptions.InvalidDataException;
+import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +44,9 @@ public class UserController {
     })
     @PostMapping("/register")
     ResponseEntity<UserResponseDto> registerUser(@Valid @RequestBody UserRequestDto userRequestDto) {
+        if (userRequestDto.getEmail() == null) {
+            throw new InvalidDataException("Invalid email address.");
+        }
         return ResponseEntity.ok(userService.registerUser(userRequestDto));
     }
 
@@ -58,6 +63,10 @@ public class UserController {
     })
     @GetMapping
     ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        List<UserResponseDto> users = userService.getAllUsers();
+        if (users.isEmpty()) {
+            throw new NotFoundException("No users found.");
+        }
         return ResponseEntity.ok(userService.getAllUsers());
     }
 }
