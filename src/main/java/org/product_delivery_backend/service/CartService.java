@@ -97,6 +97,11 @@ public class CartService {
         return cartProductMapper.toCartProductResponseDto(existCartProduct);
     }
 
+    public Long findCartByUserId(Long userId) {
+        Optional<Cart> optionalCart = cartRepository.findCartByUserId(userId);
+        return optionalCart.map(Cart::getId).orElse(-1L);
+    }
+
 
     // доп метод сервіса - внутренній
 
