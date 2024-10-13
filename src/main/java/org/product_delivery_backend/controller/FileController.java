@@ -1,5 +1,10 @@
 package org.product_delivery_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.product_delivery_backend.entity.FileMetadata;
 import org.product_delivery_backend.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,22 +20,39 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/files")
+@Tag(name = "File controller")
 public class FileController {
 
-@Autowired
-private FileService fileService;
+    @Autowired
+    private FileService fileService;
 
-@PostMapping("/upload")
-public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file)
-{
+    @Operation(summary = "Upload a file",
+            description = "Upload a file to the server.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "File uploaded successfully",
+                    content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "400", description = "Invalid file format", content = @Content),
+            @ApiResponse(responseCode = "413", description = "File size too large", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+    })
+    @PostMapping("/upload")
+    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
         var id = fileService.store(file);
 
         return ResponseEntity.ok(id.toString());
-}
+    }
 
-@GetMapping("/download/{id}")
-public ResponseEntity<Resource> download(@PathVariable("id") String fileId) throws FileNotFoundException
-{
+    @Operation(summary = "Download a file",
+            description = "Download the file associated with the specified ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "File downloaded successfully",
+                    content = @Content(mediaType = "application/octet-stream")),
+            @ApiResponse(responseCode = "400", description = "Invalid file ID", content = @Content),
+            @ApiResponse(responseCode = "404", description = "File not found", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+    })
+    @GetMapping("/download/{id}")
+    public ResponseEntity<Resource> download(@PathVariable("id") String fileId) throws FileNotFoundException {
         UUID id = UUID.fromString(fileId);
         var got = fileService.load(id);
         Resource resource = got.getFirst();
@@ -45,5 +67,5 @@ public ResponseEntity<Resource> download(@PathVariable("id") String fileId) thro
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
                 .body(resource);
-}
+    }
 }
