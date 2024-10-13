@@ -2,7 +2,6 @@ package org.product_delivery_backend.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Objects;
@@ -37,10 +36,16 @@ public class Role implements GrantedAuthority {
         return Objects.hash(id, title);
     }
 
+    public Long getId() {
+        return id;
+    }
     public void setId(Long id) {
         this.id = id;
     }
 
+    public String getTitle() {
+        return title;
+    }
     public void setTitle(String title) {
         this.title = title;
     }
