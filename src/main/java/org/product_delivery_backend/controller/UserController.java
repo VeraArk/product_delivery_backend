@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.product_delivery_backend.dto.userDto.UserRequestDto;
 import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,15 @@ public class UserController {
 
     @GetMapping
    ResponseEntity<List<UserResponseDto>> getAllUsers() {
+
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
+    @DeleteMapping("/{id}")
+    ResponseEntity<UserResponseDto> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
+
+

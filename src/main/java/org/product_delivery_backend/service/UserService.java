@@ -2,7 +2,6 @@ package org.product_delivery_backend.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.product_delivery_backend.dto.userDto.UserProfileDto;
 import org.product_delivery_backend.dto.userDto.UserRequestDto;
 import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.entity.User;
@@ -79,5 +78,12 @@ public class UserService {
         return optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
     }
 
+    public void deleteUser(Long userId) {
+        if (userRepository.existsById(userId)) {
+            userRepository.deleteById(userId);
+        } else {
+            throw new NotFoundException("User with id " + userId + " not found");
+        }
+    }
 
 }
