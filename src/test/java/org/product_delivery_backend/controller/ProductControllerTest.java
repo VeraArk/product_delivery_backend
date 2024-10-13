@@ -12,6 +12,7 @@ import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.repository.RoleRepository;
 import org.product_delivery_backend.repository.UserRepository;
+import org.product_delivery_backend.security.dto.AuthResponse;
 import org.product_delivery_backend.security.dto.LoginRequestDto;
 import org.product_delivery_backend.security.dto.TokenResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +55,9 @@ class ProductControllerTest {
 
 
     private static final String TEST_PRODUCT_TITLE = "TestProduct";
-    private static final int TEST_PRODUCT_PRICE = 12;
+    private static final int TEST_PRODUCT_PRICE = 1;
     private static final String TEST_PRODUCT_CODE = "200-BR098766";
-    private static final String TEST_PRODUCT_QUANTITY = "250 g";
+    private static final String TEST_PRODUCT_QUANTITY = "50 g";
     private static final String TEST_DESCRIPTION = "Test Product Description";
     private static final String FOTO_LINK = "HTTPS://VARUS.UA/IMG/PRODUCT/1140";
 
@@ -143,20 +144,20 @@ class ProductControllerTest {
 
         HttpEntity<LoginRequestDto> request = new HttpEntity<>(loginAdminDto, headers);
 
-        ResponseEntity<TokenResponseDto> response = template.exchange(
+        ResponseEntity<AuthResponse> response = template.exchange(
                 authUrl,                // URL
                 HttpMethod.POST,        //метод
                 request,                 //запрос, который отправляем
-                TokenResponseDto.class    // что хотім получіть в ответ
+                AuthResponse.class    // что хотім получіть в ответ
         );
 
         assertTrue(response.hasBody(), "Authorization admin response body is empty");
 
-        TokenResponseDto tokenResponseDto = response.getBody();
+        AuthResponse authResponse = response.getBody();
 
         System.out.println("Authorization response body: "  + " - " + response.getBody());
 
-        adminAccessToken = BEARER_TOKEN_PREFIX + tokenResponseDto.getAccessToken();
+        adminAccessToken = BEARER_TOKEN_PREFIX + authResponse.getToken();
 
         // Получаем токен юзера
         request = new HttpEntity<>(loginUserDto, headers);
@@ -164,12 +165,12 @@ class ProductControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 request,
-                TokenResponseDto.class
+                AuthResponse.class
         );
 
         assertTrue(response.hasBody(), "Authorization user response body is empty");
-        tokenResponseDto = response.getBody();
-        userAccessToken = BEARER_TOKEN_PREFIX + tokenResponseDto.getAccessToken();
+        authResponse = response.getBody();
+        userAccessToken = BEARER_TOKEN_PREFIX + authResponse.getToken();
     }
 
 
@@ -223,6 +224,11 @@ class ProductControllerTest {
                 HttpMethod.POST,
                 new HttpEntity<>(productRequest, headers),
                 ProductResponseDto.class);
+        if (response.getBody() != null) {
+            assertEquals("New Product", response.getBody().getTitle());
+        } else {
+            System.out.println("Response body is null or status code is: " + response.getStatusCode());
+        }
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals("New Product", response.getBody().getTitle());
@@ -279,89 +285,3 @@ class ProductControllerTest {
         assertEquals("Product 1", response.getBody().getTitle());
     }
 }
-
-
-//
-//
-//
-//
-//
-//
-//
-//
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.product_delivery_backend.config.Config;
-//import org.product_delivery_backend.dto.productDto.ProductResponseDto;
-//import org.product_delivery_backend.repository.UserRepository;
-//import org.product_delivery_backend.service.ProductService;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.context.annotation.Import;
-//import org.springframework.security.test.context.support.WithMockUser;
-//import org.springframework.test.web.servlet.MockMvc;
-//
-//
-//import java.math.BigDecimal;
-//
-//import static org.mockito.Mockito.when;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-//
-//
-//@Import(Config.class)
-//@WebMvcTest(ProductController.class)
-//
-//public class ProductControllerTest {
-//
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @MockBean
-//    private ProductService productService;
-//
-//    @MockBean
-//    private UserRepository userRepository;
-//
-//    ProductResponseDto productResponseDto;
-//
-//    private final String PRODUCTS_RESOURCE_NAME = "/api/products";
-//
-//    private static final String TEST_PRODUCT_TITLE = "TestProduct";
-//    private static final int TEST_PRODUCT_PRICE = 12;
-//    private static final String TEST_PRODUCT_CODE = "200-BR098766";
-//    private static final String TEST_PRODUCT_QUANTITY = "250 g";
-//    private static final String TEST_DESCRIPTION = "Test Product Description";
-//    private static final String FOTO_LINK = "HTTPS://VARUS.UA/IMG/PRODUCT/1140";
-//
-//
-//    @BeforeEach
-//    public void setUp() {
-//
-//        // Создаем тестовый продукт
-//        productResponseDto = new ProductResponseDto();
-//        productResponseDto.setId(1L);
-//        productResponseDto.setTitle(TEST_PRODUCT_TITLE);
-//        productResponseDto.setPrice(new BigDecimal(TEST_PRODUCT_PRICE));
-//        productResponseDto.setProductCode(TEST_PRODUCT_CODE);
-//        productResponseDto.setMinQuantity(TEST_PRODUCT_QUANTITY);
-//        productResponseDto.setDescription(TEST_DESCRIPTION);
-//        productResponseDto.setPhotoLink(FOTO_LINK);
-//
-//    }
-//
-//
-//    @Test
-//    @WithMockUser(roles = "ADMIN")
-//    public void findProductById() throws Exception {
-//        // Мокаем ProductService
-//        when(productService.findProductById(1L)).thenReturn(productResponseDto);
-//
-//        // Выполняем запрос к контроллеру
-//        mockMvc.perform(get(PRODUCTS_RESOURCE_NAME + "/1"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.title").value(TEST_PRODUCT_TITLE));
-//    }
-//}
