@@ -3,6 +3,7 @@ package org.product_delivery_backend.dto.orderDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.product_delivery_backend.dto.OrderProduct.OrderProductResponseDto;
 import org.product_delivery_backend.entity.OrderProduct;
 import org.product_delivery_backend.entity.OrderStatus;
 
@@ -18,7 +19,7 @@ public class OrderResponseDto {
         private Long id;
         private Long userId;
         private LocalDateTime orderTime;
-        private List<OrderProduct> orderProducts;
+        private List<OrderProductResponseDto> orderProducts;
         private BigDecimal totalSum;
         private OrderStatus orderStatus;
     }

@@ -1,8 +1,8 @@
 package org.product_delivery_backend.service;
 
 import lombok.Data;
-import org.product_delivery_backend.dto.cartProductDto.CartProductResponseDto;
-import org.product_delivery_backend.dto.orderDto.ConfirmedOrderResponseDto;
+import org.product_delivery_backend.dto.OrderProduct.OrderProductResponseDto;
+import org.product_delivery_backend.dto.orderDto.UpdateStatusOrderResponseDto;
 import org.product_delivery_backend.dto.orderDto.OrderRequestDto;
 import org.product_delivery_backend.dto.orderDto.OrderResponseDto;
 import org.product_delivery_backend.entity.*;
@@ -34,12 +34,17 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderProductRepository orderProductRepository;
+    private final CartProductRepository cartProductRepository;
+    private final UserService userService;
 
 
     public OrderResponseDto createOrder(Long userId) {
 
         Optional<User> optionalUser = userRepository.findById(userId);
         User user = optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
+
+       Optional<Cart> cart = cartRepository.findCartByUserId(userId);
+       Cart exsistCart = cart.orElseThrow(()->new NotFoundException("Cart not found"));
 
         Order order = Order.builder()
                 .user(user)
@@ -49,14 +54,9 @@ public class OrderService {
                 .build();
 
         orderRepository.save(order); // сохраняем заказ
+        List <CartProduct> cartProductList = cartProductRepository.findByCartId(exsistCart.getId());
 
-        List<CartProductResponseDto> listProductDto = cartService.getProductsInCart(userId);
-
-        List<CartProduct> cartProducts = listProductDto.stream()
-                .map(cartProductMapper::toCartProduct)
-                .collect(Collectors.toList());
-
-        List<OrderProduct> orderProducts = cartProducts.stream()
+        List<OrderProduct> orderProducts = cartProductList.stream()
                 .map(cartProduct -> {
                     Product product = productRepository.findById(cartProduct.getProduct().getId())
                             .orElseThrow(() -> new NotFoundException("Product not found for ID: " + cartProduct.getProduct().getId()));
@@ -84,28 +84,35 @@ public class OrderService {
         Cart existCart = optionalCart.orElseThrow(() -> new NotFoundException("Cart not found for user ID: " + userId));
         cartService.clearCart(existCart.getId());
 
-        return orderMapper.toOrderResponseDto(order);
+        List<OrderProductResponseDto> orderProductResponseDto = orderProducts.stream().
+                map(orderProductMapper::toOrderProductResponseDto).toList();
+
+        OrderResponseDto orderResponseDto = orderMapper.toOrderResponseDto(order);
+        orderResponseDto.setOrderProducts(orderProductResponseDto);
+        return orderResponseDto;
     }
 
-    public ConfirmedOrderResponseDto confirmOrder(OrderRequestDto orderRequestDto) {
-        Optional<Order> optionalOrder = orderRepository.findOrderByUserId(orderRequestDto.getUserId());
-        Order existOrder = optionalOrder.orElseThrow(() -> new NotFoundException("Order not found for user ID: " + orderRequestDto.getUserId()));
+    public UpdateStatusOrderResponseDto confirmOrder(OrderRequestDto orderRequestDto) {
+        Optional<Order> optionalOrder = orderRepository.findById(orderRequestDto.getId());// orderId
+        Order existOrder = optionalOrder.orElseThrow(() -> new NotFoundException("Order with ID: " + orderRequestDto.getId()+ " is not found"));
+
+        String deliveryTimeString =  orderRequestDto.getDeliveryTime();
+        LocalDateTime deliveryTime = LocalDateTime.parse(deliveryTimeString);
+        existOrder.setDeliveryTime(deliveryTime);
 
         existOrder.setAddress(orderRequestDto.getAddress());
-        existOrder.setDeliveryTime(orderRequestDto.getDeliveryTime());
         existOrder.setOrderStatus(OrderStatus.CONFIRMED);
         existOrder.setPaymentMethod(orderRequestDto.getPaymentMethod());
 
         orderRepository.save(existOrder);
-
-        return orderMapper.toConfirmedOrderResponseDto(existOrder);
+        return orderMapper.toUpdateStatusOrderResponseDto(existOrder);
     }
 
-    public OrderResponseDto payForOrder(Long orderId, PaymentMethod paymentMethod) {
+    public UpdateStatusOrderResponseDto payForOrder(Long orderId) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found for ID: " + orderId));
-
+        PaymentMethod paymentMethod = order.getPaymentMethod();
         if (validatePaymentMethod(paymentMethod)) {
             order.setOrderStatus(OrderStatus.PAID);
             order.setPaymentMethod(paymentMethod);
@@ -113,10 +120,10 @@ public class OrderService {
         } else {
             throw new PaymentException("Invalid payment method");
         }
-        return orderMapper.toOrderResponseDto(order);
+        return orderMapper.toUpdateStatusOrderResponseDto(order);
     }
 
-    public OrderStatus cancelOrder(Long orderId, OrderStatus orderStatus) throws OrderException {
+    public UpdateStatusOrderResponseDto cancelOrder(Long orderId) throws OrderException {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found for ID: " + orderId));
 
@@ -127,7 +134,7 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
 
-        return OrderStatus.CANCELLED;
+        return orderMapper.toUpdateStatusOrderResponseDto(order);
     }
 
     public void clearOrder(Long orderId) {

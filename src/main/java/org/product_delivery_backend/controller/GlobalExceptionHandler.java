@@ -23,6 +23,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST, "Validation Error");
     }
 
+    @ExceptionHandler(OrderException.class)
+    public ResponseEntity<ErrorResponseDto> handleOrderException(OrderException e) {
+        return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST, "OrderStatusError");
+    }
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleNotFoundException(NotFoundException e) {
         return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND, "Not Found");

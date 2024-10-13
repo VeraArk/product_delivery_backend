@@ -11,11 +11,9 @@ import java.util.List;
 @Data
 public class OrderRequestDto {
 
-    private Long userId;
+    private Long id;
     private String address;
-    private LocalDateTime deliveryTime;
-    private List<OrderProductRequestDto> orderProductRequestDtoList;
-    private OrderStatus orderStatus;
+    private String deliveryTime;
     private PaymentMethod paymentMethod;
 
 }

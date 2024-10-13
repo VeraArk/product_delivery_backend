@@ -2,14 +2,17 @@ package org.product_delivery_backend.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.product_delivery_backend.dto.orderDto.ConfirmedOrderResponseDto;
+import org.product_delivery_backend.dto.ErrorResponseDto;
+import org.product_delivery_backend.dto.orderDto.UpdateStatusOrderResponseDto;
 import org.product_delivery_backend.dto.orderDto.OrderRequestDto;
 import org.product_delivery_backend.dto.orderDto.OrderResponseDto;
 import org.product_delivery_backend.entity.OrderStatus;
-import org.product_delivery_backend.entity.PaymentMethod;
+import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.exceptions.OrderException;
 import org.product_delivery_backend.service.OrderService;
+import org.product_delivery_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/order")
@@ -17,31 +20,30 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
+    private final UserService userService;
 
-    @PostMapping("/{userId}")
-    public ResponseEntity<OrderResponseDto> createOrder(
-            @PathVariable Long userId) {
-        return ResponseEntity.ok(orderService.createOrder(userId));
+    @PostMapping()
+    public ResponseEntity<OrderResponseDto> createOrder() {
+        User user = userService.getUser();
+        return ResponseEntity.ok(orderService.createOrder(user.getId()));
     }
 
     @PutMapping("/confirmed")
-    public ResponseEntity<ConfirmedOrderResponseDto> confirmOrder(
+    public ResponseEntity<UpdateStatusOrderResponseDto> confirmOrder(
             @RequestBody OrderRequestDto orderRequestDto) {
         return ResponseEntity.ok(orderService.confirmOrder(orderRequestDto));
     }
 
     @PutMapping("/paid/{orderId}")
-    public ResponseEntity<OrderResponseDto> payForOrder(
-            @PathVariable Long orderId,
-            @RequestBody PaymentMethod paymentMethod) {
-        return ResponseEntity.ok(orderService.payForOrder(orderId, paymentMethod));
+    public ResponseEntity<UpdateStatusOrderResponseDto> payForOrder(
+            @PathVariable Long orderId) {
+        return ResponseEntity.ok(orderService.payForOrder(orderId));
     }
 
-    @PutMapping("/cancelled/{orderId}")
-    public ResponseEntity<OrderStatus> cancelOrder(
-            @PathVariable Long orderId,
-            @RequestBody OrderStatus orderStatus) throws OrderException {
-        return ResponseEntity.ok(orderService.cancelOrder(orderId, orderStatus));
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<UpdateStatusOrderResponseDto> cancelOrder(@PathVariable Long orderId) throws OrderException {
+        UpdateStatusOrderResponseDto responseDto = orderService.cancelOrder(orderId);
+        return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping("/{orderId}")
