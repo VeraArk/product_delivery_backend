@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -38,7 +37,7 @@ public class Order {
     @Column(name = "delivery_time")
     private LocalDateTime deliveryTime;
 
-    @OneToMany (mappedBy = "order") //// "order" — это имя поля в классе OrderProduct
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderProduct> orderProducts;
 
     @Column(name = "total_sum")

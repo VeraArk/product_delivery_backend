@@ -14,7 +14,7 @@ public class OrderProductResponseDto {
 
     private Long id;
     private Long orderId;
-    private Product product;
+    private Long productId;
     private Integer productQuantity;
     private BigDecimal sum;
 
