@@ -1,7 +1,6 @@
 package org.product_delivery_backend.mapper;
 
 import org.mapstruct.Mapper;
-import org.product_delivery_backend.dto.userDto.UserProfileDto;
 import org.product_delivery_backend.dto.userDto.UserRequestDto;
 import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.entity.User;
@@ -18,5 +17,5 @@ public interface UserMapper {
 
     List<UserResponseDto> toResponseList(List<User> users);
 
-    UserProfileDto toUserProfileDto(User user);
+
 }
