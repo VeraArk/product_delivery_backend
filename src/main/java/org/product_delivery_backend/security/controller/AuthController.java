@@ -51,9 +51,6 @@ public class AuthController {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
        String username = authentication.getPrincipal().toString();
 
-
-        logger.info("Authenticated user: " + authentication);
-
         return userService.getUserProfileByEmail(username);
 
     }
