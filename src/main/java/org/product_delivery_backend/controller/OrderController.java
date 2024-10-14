@@ -17,7 +17,7 @@ import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.exceptions.InvalidDataException;
 import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.exceptions.OrderException;
-import org.product_delivery_backend.repository.OrderRepsitory;
+import org.product_delivery_backend.repository.OrderRepository;
 import org.product_delivery_backend.service.OrderService;
 import org.product_delivery_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +33,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final UserService userService;
-    private final OrderRepsitory orderRepsitory;
+    private final OrderRepository orderRepository;
 
     @Operation(summary = "Create a new order",
             description = "Create a new order for the currently logged-in user.")
