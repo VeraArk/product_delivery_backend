@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.security.auth.message.AuthException;
-import org.product_delivery_backend.dto.userDto.UserProfileDto;
 import org.product_delivery_backend.dto.userDto.UserResponseDto;
 import org.product_delivery_backend.security.dto.AuthResponse;
 import org.product_delivery_backend.security.dto.LoginRequestDto;

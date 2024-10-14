@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 @Data
 public class OrderService {
 
-    private final OrderRepsitory orderRepository;
+    private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final CartService cartService;
     private final OrderProductMapper orderProductMapper;
@@ -68,7 +69,6 @@ public class OrderService {
                 })
                 .collect(Collectors.toList());
 
-        orderProductRepository.saveAll(orderProducts);
 
         order.setOrderProducts(orderProducts);
 
@@ -80,12 +80,12 @@ public class OrderService {
 
         orderRepository.save(order);
 
+        // повторный поиск корзины для чего???
         Optional<Cart> optionalCart = cartRepository.findCartByUserId(userId);
         Cart existCart = optionalCart.orElseThrow(() -> new NotFoundException("Cart not found for user ID: " + userId));
         cartService.clearCart(existCart.getId());
 
-        List<OrderProductResponseDto> orderProductResponseDto = orderProducts.stream().
-                map(orderProductMapper::toOrderProductResponseDto).toList();
+        List<OrderProductResponseDto> orderProductResponseDto = orderProductMapper.toOrderProductResponseDtoList(order.getOrderProducts());
 
         OrderResponseDto orderResponseDto = orderMapper.toOrderResponseDto(order);
         orderResponseDto.setOrderProducts(orderProductResponseDto);
@@ -146,13 +146,41 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
+
     public OrderResponseDto findOrderById(Long orderId) {
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
         return orderMapper.toOrderResponseDto(optionalOrder.get());
+
+    public OrderResponseDto getOrder(Long userId) {
+        Optional<Order> optionalOrder = orderRepository.findOrderByUserId(userId);
+        Order existOrder = optionalOrder.orElseThrow(() -> new NotFoundException("Order not found for ID: " + userId));
+        return orderMapper.toOrderResponseDto(existOrder);
+    }
+
+    public List<OrderResponseDto> getOrders (Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        User existUser = optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
+        List<Order> orders = orderRepository.findAllByUserId(existUser.getId());
+        return getOrderResponseDtos(orders);
+    }
+
+    public List<OrderResponseDto> getAllOrders () {
+        List<Order> orders = orderRepository.findAll();
+        return getOrderResponseDtos(orders);
     }
 
 
     // внутренніе методы
+    private List<OrderResponseDto> getOrderResponseDtos(List<Order> orders) {
+        List<OrderResponseDto> orderResponseDtoList = new ArrayList<>();
+        for (Order order : orders) {
+            OrderResponseDto orderResponseDto = orderMapper.toOrderResponseDto(order);
+            List<OrderProductResponseDto> orderProductResponseDto = orderProductMapper.toOrderProductResponseDtoList(order.getOrderProducts());
+            orderResponseDto.setOrderProducts(orderProductResponseDto);
+            orderResponseDtoList.add(orderResponseDto);
+        }
+        return orderResponseDtoList;
+    }
 
     private boolean validatePaymentMethod(PaymentMethod paymentMethod) {
         return paymentMethod == PaymentMethod.CREDIT_CARD ||

@@ -23,6 +23,7 @@ import org.product_delivery_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/order")
@@ -137,5 +138,17 @@ public class OrderController {
         }
         orderService.clearOrder(orderId);
         return ResponseEntity.ok("Order cleared");
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<OrderResponseDto>> getOrders() {
+        User user = userService.getUser();
+        orderService.getOrders(user.getId());
+        return ResponseEntity.ok(orderService.getOrders(user.getId()));
+    }
+    @GetMapping()
+    public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
+        orderService.getAllOrders();
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
 }
