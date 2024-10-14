@@ -41,8 +41,8 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login","/api/auth/refresh").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()  // Убедитесь, что путь к документации включает подкаталоги
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/products/page").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
@@ -62,4 +62,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
 }

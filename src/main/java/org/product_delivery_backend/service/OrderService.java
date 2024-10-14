@@ -44,8 +44,8 @@ public class OrderService {
         Optional<User> optionalUser = userRepository.findById(userId);
         User user = optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
 
-       Optional<Cart> cart = cartRepository.findCartByUserId(userId);
-       Cart exsistCart = cart.orElseThrow(()->new NotFoundException("Cart not found"));
+        Optional<Cart> cart = cartRepository.findCartByUserId(userId);
+        Cart exsistCart = cart.orElseThrow(() -> new NotFoundException("Cart not found"));
 
         Order order = Order.builder()
                 .user(user)
@@ -55,7 +55,7 @@ public class OrderService {
                 .build();
 
         orderRepository.save(order); // сохраняем заказ
-        List <CartProduct> cartProductList = cartProductRepository.findByCartId(exsistCart.getId());
+        List<CartProduct> cartProductList = cartProductRepository.findByCartId(exsistCart.getId());
 
         List<OrderProduct> orderProducts = cartProductList.stream()
                 .map(cartProduct -> {
@@ -94,9 +94,9 @@ public class OrderService {
 
     public UpdateStatusOrderResponseDto confirmOrder(OrderRequestDto orderRequestDto) {
         Optional<Order> optionalOrder = orderRepository.findById(orderRequestDto.getId());// orderId
-        Order existOrder = optionalOrder.orElseThrow(() -> new NotFoundException("Order with ID: " + orderRequestDto.getId()+ " is not found"));
+        Order existOrder = optionalOrder.orElseThrow(() -> new NotFoundException("Order with ID: " + orderRequestDto.getId() + " is not found"));
 
-        String deliveryTimeString =  orderRequestDto.getDeliveryTime();
+        String deliveryTimeString = orderRequestDto.getDeliveryTime();
         LocalDateTime deliveryTime = LocalDateTime.parse(deliveryTimeString);
         existOrder.setDeliveryTime(deliveryTime);
 
@@ -145,6 +145,11 @@ public class OrderService {
         orderProductRepository.deleteByOrder(existOrder);
         orderRepository.deleteById(orderId);
     }
+
+
+    public OrderResponseDto findOrderById(Long orderId) {
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        return orderMapper.toOrderResponseDto(optionalOrder.get());
 
     public OrderResponseDto getOrder(Long userId) {
         Optional<Order> optionalOrder = orderRepository.findOrderByUserId(userId);
