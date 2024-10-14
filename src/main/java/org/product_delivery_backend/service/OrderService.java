@@ -150,6 +150,7 @@ public class OrderService {
     public OrderResponseDto findOrderById(Long orderId) {
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
         return orderMapper.toOrderResponseDto(optionalOrder.get());
+    }
 
     public OrderResponseDto getOrder(Long userId) {
         Optional<Order> optionalOrder = orderRepository.findOrderByUserId(userId);
