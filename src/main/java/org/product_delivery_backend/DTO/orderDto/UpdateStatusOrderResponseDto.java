@@ -18,5 +18,6 @@ public class UpdateStatusOrderResponseDto {
     private LocalDateTime deliveryTime;
     private OrderStatus orderStatus;
     private PaymentMethod paymentMethod;
+    private String payment_url;
 
 }

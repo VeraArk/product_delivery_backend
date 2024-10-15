@@ -1,6 +1,7 @@
 package org.product_delivery_backend.controller;
 
 
+import com.stripe.exception.StripeException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -70,7 +71,7 @@ public class OrderController {
     })
     @PutMapping("/confirmed")
     public ResponseEntity<UpdateStatusOrderResponseDto> confirmOrder(
-            @RequestBody OrderRequestDto orderRequestDto) {
+            @RequestBody OrderRequestDto orderRequestDto) throws StripeException {
         if (orderRequestDto.getId() == null) {
             throw new InvalidDataException("Order ID cannot be null.");
         }

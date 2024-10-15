@@ -1,5 +1,6 @@
 package org.product_delivery_backend.service;
 
+import com.stripe.exception.StripeException;
 import lombok.Data;
 import org.product_delivery_backend.dto.OrderProduct.OrderProductResponseDto;
 import org.product_delivery_backend.dto.orderDto.UpdateStatusOrderResponseDto;
@@ -37,6 +38,7 @@ public class OrderService {
     private final OrderProductRepository orderProductRepository;
     private final CartProductRepository cartProductRepository;
     private final UserService userService;
+    private final PaymentService paymentService;
 
 
     public OrderResponseDto createOrder(Long userId) {
@@ -92,7 +94,7 @@ public class OrderService {
         return orderResponseDto;
     }
 
-    public UpdateStatusOrderResponseDto confirmOrder(OrderRequestDto orderRequestDto) {
+    public UpdateStatusOrderResponseDto confirmOrder(OrderRequestDto orderRequestDto) throws StripeException {
         Optional<Order> optionalOrder = orderRepository.findById(orderRequestDto.getId());// orderId
         Order existOrder = optionalOrder.orElseThrow(() -> new NotFoundException("Order with ID: " + orderRequestDto.getId() + " is not found"));
 
@@ -105,7 +107,12 @@ public class OrderService {
         existOrder.setPaymentMethod(orderRequestDto.getPaymentMethod());
 
         orderRepository.save(existOrder);
-        return orderMapper.toUpdateStatusOrderResponseDto(existOrder);
+
+        UpdateStatusOrderResponseDto updateStatusOrderResponseDto = orderMapper.toUpdateStatusOrderResponseDto(existOrder);
+
+        updateStatusOrderResponseDto.setPayment_url(paymentService.createPayment(existOrder));
+
+        return updateStatusOrderResponseDto;
     }
 
     public UpdateStatusOrderResponseDto payForOrder(Long orderId) {
