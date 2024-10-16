@@ -38,13 +38,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.refreshStorage = new HashMap<>();
     }
-    /*
-    1. Принять данные пользователя
-    2. Проверка логина и пароля
-    3. Генерация токенов
-    4. Сохранить refresh-токен в хранилище
-    5. Сформировать ответ
-     */
+
     public AuthResponse login(LoginRequestDto loginRequestDto) throws AuthException {
         UserDetails foundUser = userDetailsService.loadUserByUsername(loginRequestDto.username());
         Optional<User> userForResponse = userService.getUserByEmail(loginRequestDto.username());
@@ -63,16 +57,6 @@ public class AuthService {
 
         throw new AuthException("Incorrect login and/or password");
     }
-
-    /*
-    1. Прием данных
-    2. Валидация токена в сервисе
-    3. Извлечь информацию о пользователе
-    4. Проверяем наличие токена в нашем токен Storage
-    5. Получить пользователя из базы
-    6. Генерируем новый AccessToken
-    7. Формирование и возврат ответа
-     */
 
     public TokenResponseDto refreshAccessToken(RefreshRequestDto refreshRequestDto) throws AuthException {
         String token = refreshRequestDto.refreshToken();
