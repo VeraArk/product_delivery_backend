@@ -20,6 +20,9 @@ public class PaymentService {
 
         Stripe.apiKey = stripeSecretKey;
 
+        var a = new BigDecimal(100);
+        var amount = order.getTotalSum().multiply(a);
+
         SessionCreateParams params = SessionCreateParams.builder().addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl("http://localhost:5173/payment/success?orderId=" + order.getId())
@@ -27,7 +30,7 @@ public class PaymentService {
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L).setPriceData(SessionCreateParams.LineItem.PriceData.builder()
                                 .setCurrency("eur")
-                                .setUnitAmount((long) order.getTotalSum().longValue() * 100)
+                                .setUnitAmountDecimal(amount)
                                 .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                         .setName("food now")
                                         .build())
