@@ -3,6 +3,7 @@ package org.product_delivery_backend.dto.orderDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.product_delivery_backend.dto.OrderProduct.OrderProductResponseDto;
 import org.product_delivery_backend.entity.OrderProduct;
 import org.product_delivery_backend.entity.OrderStatus;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class OrderResponseDto {
 

@@ -39,20 +39,22 @@ public class Product {
 
     @Pattern(regexp = "^[0-9.]+(\\s?(g|kg|ml|l|p))$", message = "The weight/volume must contain a number followed by a valid unit (g, kg, ml, l).")
     @Size(min = 2, max = 10, message = "The weight/volume must be between 2 and 10 characters long.")
-    @Column(name="min-quantity")
+    @Column(name="min_quantity")
     private String minQuantity;
 
-//    @Pattern(regexp = "^[A-Za-z0-9.,-:;()?!\\s]+$", message = "The description can only contain letters, numbers.")
-    @NotBlank(message = "The Field \"description\" must not be empty")
+
     @Size(min = 10, max = 255, message = "The description must contain from 10 to 255 characters")
     private String description;
 
-//    @URL(message = "Invalid URL format")
-    // на случай если ссылка будет хранится в базе
-    //@Pattern(regexp = "^[A-Za-z0-9/._-]+$", message = "Invalid file path")
-    //@Size(max = 255, message = "File path is too long")
-    @Column(name = "photo-link")
+    @Column(name = "photo_link")
     private String photoLink;
+
+
+    @Override
+    public String toString() {
+        return String.format("Product{id=%d, title='%s', price=%s, productCode='%s', description='%s'}",
+                id, title, price, productCode, description);
+    }
 }
 
 

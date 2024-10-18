@@ -18,7 +18,6 @@ import org.product_delivery_backend.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-
 import java.util.List;
 
 
@@ -62,18 +61,34 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Products not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
+
     @GetMapping("/page")
-    public ResponseEntity<Page<AllProductResponseDto>> findAllPage(@RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<Page<AllProductResponseDto>> findAllPage(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam (required = false) String category) {
+
         if (page < 0 || size <= 0) {
             throw new InvalidDataException("Invalid pagination parameters.");
         }
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<AllProductResponseDto> productPage = productService.findAllProductPage(pageable);
+        Page<AllProductResponseDto> productPage;
+
+        if (category != null || !category.isEmpty()) {
+            productPage = productService.findProductsByCategory(category, pageable);
+            System.out.println(productPage);
+        } else {
+            productPage = productService.findAllProductPage(pageable);
+        }
+
         if (productPage.isEmpty()) {
             throw new NotFoundException("No products found on this page.");
         }
-        return new ResponseEntity<>(productService.findAllProductPage(pageable), HttpStatus.OK);
+
+        return new ResponseEntity<>(productPage, HttpStatus.OK);
     }
+
 
     @Operation(summary = "Add a new product",
             description = "Create a new product with the provided details.")
@@ -88,6 +103,7 @@ public class ProductController {
             @ApiResponse(responseCode = "409", description = "Product already exists", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
+
     @PostMapping
     public ResponseEntity<ProductResponseDto> addProduct(@RequestBody ProductRequestDto productRequestDto) {
         if (productRequestDto.getTitle() == null || productRequestDto.getTitle().isEmpty()) {
