@@ -75,7 +75,7 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, size);
         Page<AllProductResponseDto> productPage;
 
-        if (category != null || !category.isEmpty()) {
+        if (category != null && !category.isEmpty()) {
             productPage = productService.findProductsByCategory(category, pageable);
             System.out.println(productPage);
         } else {
