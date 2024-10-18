@@ -112,7 +112,7 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Order not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    @PostMapping("/{orderId}/cancel")
+    @PutMapping("/{orderId}/cancel")
     public ResponseEntity<UpdateStatusOrderResponseDto> cancelOrder(@PathVariable Long orderId) throws OrderException {
         OrderResponseDto order = orderService.findOrderById(orderId);
         if (order == null) {
