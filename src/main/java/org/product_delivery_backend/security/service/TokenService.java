@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.product_delivery_backend.entity.Role;
-import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.repository.RoleRepository;
 import org.product_delivery_backend.security.AuthInfo;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -11,8 +11,6 @@ import org.product_delivery_backend.repository.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,8 +21,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-
-    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
 
 
     public List<AllProductResponseDto> findAllProduct() {
@@ -52,9 +48,6 @@ public class ProductService {
         System.out.println("productCodePattern" + productCodePattern);
 
         Page<Product> products = productRepository.findByProductCodeLike(productCodePattern, pageable);
-
-        log.info("Number of products found: {}", products.getTotalElements());
-        products.forEach(product -> log.info("Product details: {}", product));
 
         return products.map(productMapper::toAllProductResponseDTO);
     }

@@ -36,6 +36,9 @@
             <column name="payment_method" type="varchar(50)">
                 <constraints nullable="true"/>
             </column>
+            <column name="payment_url" type="text">
+                <constraints nullable="true"/>
+            </column>
 
         </createTable>
 

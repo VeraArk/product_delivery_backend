@@ -71,7 +71,6 @@ public class OrderService {
                 })
                 .collect(Collectors.toList());
 
-
         order.setOrderProducts(orderProducts);
 
         BigDecimal totalSum = orderProducts.stream()
@@ -82,7 +81,6 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        // повторный поиск корзины для чего???
         Optional<Cart> optionalCart = cartRepository.findCartByUserId(userId);
         Cart existCart = optionalCart.orElseThrow(() -> new NotFoundException("Cart not found for user ID: " + userId));
         cartService.clearCart(existCart.getId());

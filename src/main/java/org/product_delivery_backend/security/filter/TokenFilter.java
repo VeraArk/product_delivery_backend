@@ -22,13 +22,6 @@ public class TokenFilter extends GenericFilterBean {
         this.tokenService = tokenService;
     }
 
-    /*
-   1. Извлечь токен из запроса
-   2. Проверка валидности токена
-   3. Авторизация пользователя (добавить в SecurityContext)
-   4. Продолжить цепочку фильтров
-    */
-
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 

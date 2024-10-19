@@ -8,8 +8,6 @@ import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.mapper.UserMapper;
 import org.product_delivery_backend.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,7 +26,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserMapper userMapper;
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
 
     @Transactional
     public UserResponseDto registerUser(UserRequestDto request) {
