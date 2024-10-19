@@ -21,15 +21,3 @@ public interface CartProductMapper {
     CartProductResponseDto toCartProductResponseDto(CartProduct cartProduct);
 }
 
-//@Mapper(componentModel = "spring")
-//public interface CartProductMapper {
-//
-//    @Mapping(source = "cartId", target = "cartProduct.cart.id")
-//    @Mapping(source = "productId", target = "cartProduct.product.id")
-//    CartProduct toCart (CartProductResponseDto cartProductResponseDto);
-//
-//    @Mapping(source = "cartProduct.cart.id", target = "cartId")
-//    @Mapping(source = "cartProduct.product.id", target = "productId")
-//    CartProductResponseDto toCartProductResponseDto(CartProduct cartProduct);
-//
-//}

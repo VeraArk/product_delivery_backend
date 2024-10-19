@@ -51,5 +51,6 @@ public class Order {
     @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
 
+    @Column(name = "payment_url", columnDefinition="TEXT", length = 2000)
     private String paymentUrl;
 }

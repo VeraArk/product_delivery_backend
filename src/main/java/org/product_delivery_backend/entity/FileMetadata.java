@@ -17,7 +17,6 @@ import java.util.UUID;
 @Table(name = "file_metadata")
 public class FileMetadata {
         @Id
-        //@GeneratedValue(strategy = GenerationType.UUID)
         private UUID id;
         private LocalDateTime ctime;
         private long size;
