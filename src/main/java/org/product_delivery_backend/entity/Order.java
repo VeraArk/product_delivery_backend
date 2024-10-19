@@ -50,4 +50,6 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
+
+    private String paymentUrl;
 }

@@ -2,7 +2,7 @@ package org.product_delivery_backend.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.product_delivery_backend.dto.OrderProduct.OrderProductResponseDto;
+import org.product_delivery_backend.dto.orderProduct.OrderProductResponseDto;
 import org.product_delivery_backend.entity.CartProduct;
 import org.product_delivery_backend.entity.OrderProduct;
 
