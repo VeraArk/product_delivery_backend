@@ -1,9 +1,8 @@
-package org.product_delivery_backend.dto.OrderProduct;
+package org.product_delivery_backend.dto.orderProduct;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.product_delivery_backend.entity.Product;
 
 import java.math.BigDecimal;
 
