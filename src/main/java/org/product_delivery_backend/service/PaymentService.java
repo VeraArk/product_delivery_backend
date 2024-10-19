@@ -41,7 +41,10 @@ public class PaymentService {
 
         Session session = Session.create(params);
 
-        return session.getUrl();
+        var paymentUrl = session.getUrl();
+        order.setPaymentUrl(paymentUrl);
+
+        return paymentUrl;
     }
 
 }
