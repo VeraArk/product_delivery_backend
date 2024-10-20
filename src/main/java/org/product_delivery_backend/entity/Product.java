@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
 
@@ -49,19 +48,22 @@ public class Product {
     @Schema(description = "The minimum quantity of the product.", example = "1 kg", accessMode = Schema.AccessMode.AUTO)
     private String minQuantity;
 
-//    @Pattern(regexp = "^[A-Za-z0-9.,-:;()?!\\s]+$", message = "The description can only contain letters, numbers.")
-    @NotBlank(message = "The Field \"description\" must not be empty")
+
     @Size(min = 10, max = 255, message = "The description must contain from 10 to 255 characters")
     @Schema(description = "A brief description of the product.", example = "Freshly tasty apple.", accessMode = Schema.AccessMode.AUTO)
     private String description;
 
-//    @URL(message = "Invalid URL format")
-    // на случай если ссылка будет хранится в базе
-    //@Pattern(regexp = "^[A-Za-z0-9/._-]+$", message = "Invalid file path")
-    //@Size(max = 255, message = "File path is too long")
-    @Column(name = "photo-link")
+
     @Schema(description = "Link to the product's photo.", example = "http://example.com/images/apple.jpg", accessMode = Schema.AccessMode.AUTO)
+    @Column(name = "photo_link")
     private String photoLink;
+
+
+    @Override
+    public String toString() {
+        return String.format("Product{id=%d, title='%s', price=%s, productCode='%s', description='%s'}",
+                id, title, price, productCode, description);
+    }
 }
 
 

@@ -12,7 +12,5 @@ public interface ProductMapper {
     ProductResponseDto toProductResponseDTO(Product product);
 
     Product toProduct(ProductRequestDto productRequestDto);
-
-    Product toProductForAddToCart(ProductAddToCartRequestDto productAddToCartRequestDto);
 }
 

@@ -3,8 +3,8 @@ package org.product_delivery_backend.dto.orderDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.product_delivery_backend.dto.OrderProduct.OrderProductResponseDto;
-import org.product_delivery_backend.entity.OrderProduct;
+import lombok.NoArgsConstructor;
+import org.product_delivery_backend.dto.orderProduct.OrderProductResponseDto;
 import org.product_delivery_backend.entity.OrderStatus;
 import org.product_delivery_backend.entity.PaymentMethod;
 
@@ -14,6 +14,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class OrderResponseDto {
 
@@ -26,5 +27,6 @@ public class OrderResponseDto {
         private BigDecimal totalSum;
         private OrderStatus orderStatus;
         private PaymentMethod paymentMethod;
+        private String paymentUrl;
     }
 

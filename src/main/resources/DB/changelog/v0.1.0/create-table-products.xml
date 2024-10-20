@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="create-table-products" author="VeraArkind">
+        <createTable tableName="products">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="title" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="price" type="decimal(12, 2)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="product_code" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="min_quantity" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="description" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="photo_link" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="product_code" tableName="products" constraintName="uq_product_code"/>
+
+    </changeSet>
+
+</databaseChangeLog>

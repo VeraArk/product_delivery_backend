@@ -1,6 +1,5 @@
 package org.product_delivery_backend.controller;
 
-import org.apache.coyote.BadRequestException;
 import org.product_delivery_backend.dto.ErrorResponseDto;
 import org.product_delivery_backend.exceptions.*;
 import org.springframework.http.HttpStatus;
@@ -41,11 +40,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleAlreadyExistException(AlreadyExistException e) {
         return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST, "Already Exist");
     }
-
-//    @ExceptionHandler(DatabaseException.class)
-//    public ResponseEntity<ErrorResponseDto> handleDatabaseException(DatabaseException e) {
-//        return buildErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, "Database Error");
-//    }
 
     @ExceptionHandler(FileProcessingException.class)
     public ResponseEntity<ErrorResponseDto> handleFileProcessingException(FileProcessingException e) {

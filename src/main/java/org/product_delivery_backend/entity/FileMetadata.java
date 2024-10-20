@@ -19,7 +19,6 @@ import java.util.UUID;
 @Schema(description = "Metadata for a file stored in the system.")
 public class FileMetadata {
         @Id
-        //@GeneratedValue(strategy = GenerationType.UUID)
         @Schema(description = "Unique identifier of the file.", example = "e32d21ab-22e9-4caa-8c31-6d86ccdc0bb2", required = true)
         private UUID id;
         @Schema(description = "Creation time of the file.", example = "2024-10-17T12:00:00")

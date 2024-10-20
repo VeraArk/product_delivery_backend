@@ -61,4 +61,7 @@ public class Order {
     @Column(name = "payment_method")
     @Schema(description = "The payment method used for the order.", example = "Pay Pal")
     private PaymentMethod paymentMethod;
+
+    @Column(name = "payment_url", columnDefinition="TEXT", length = 2000)
+    private String paymentUrl;
 }

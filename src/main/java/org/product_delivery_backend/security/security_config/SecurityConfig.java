@@ -1,7 +1,6 @@
 package org.product_delivery_backend.security.security_config;
 
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.product_delivery_backend.security.JwtAuthenticationEntryPoint;
 import org.product_delivery_backend.security.filter.TokenFilter;
 import org.springframework.context.annotation.Bean;
