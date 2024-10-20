@@ -141,7 +141,7 @@ public class OrderController {
     @GetMapping("/my")
     public ResponseEntity<List<OrderResponseDto>> getOrders() {
         User user = userService.getUser();
-        orderService.getOrders(user.getId());
+        //orderService.getOrders(user.getId());
         return ResponseEntity.ok(orderService.getOrders(user.getId()));
     }
     @GetMapping()

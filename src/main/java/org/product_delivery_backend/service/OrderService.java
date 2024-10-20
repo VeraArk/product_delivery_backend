@@ -157,11 +157,6 @@ public class OrderService {
         return orderMapper.toOrderResponseDto(optionalOrder.get());
     }
 
-    public OrderResponseDto getOrder(Long userId) {
-        Optional<Order> optionalOrder = orderRepository.findOrderByUserId(userId);
-        Order existOrder = optionalOrder.orElseThrow(() -> new NotFoundException("Order not found for ID: " + userId));
-        return orderMapper.toOrderResponseDto(existOrder);
-    }
 
     public List<OrderResponseDto> getOrders (Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
