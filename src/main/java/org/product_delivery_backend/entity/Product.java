@@ -44,7 +44,7 @@ public class Product {
 
     @Pattern(regexp = "^[0-9.]+(\\s?(g|kg|ml|l|p))$", message = "The weight/volume must contain a number followed by a valid unit (g, kg, ml, l).")
     @Size(min = 2, max = 10, message = "The weight/volume must be between 2 and 10 characters long.")
-    @Column(name="min-quantity")
+    @Column(name="min_quantity")
     @Schema(description = "The minimum quantity of the product.", example = "1 kg", accessMode = Schema.AccessMode.AUTO)
     private String minQuantity;
 
