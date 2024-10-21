@@ -17,6 +17,10 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     @Value("${stripe.api.key}")
     private String stripeSecretKey;
+    @Value("${stripe.success.url}")
+    private String stripeSuccessUrl;
+    @Value("${stripe.fail.url}")
+    private String stripeFailUrl;
 
     public PaymentService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
@@ -31,8 +35,8 @@ public class PaymentService {
 
         SessionCreateParams params = SessionCreateParams.builder().addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:5173/payment/success?orderId=" + order.getId())
-                .setCancelUrl("http://localhost:5173/user-profile")
+                .setSuccessUrl(stripeSuccessUrl + order.getId())
+                .setCancelUrl(stripeFailUrl)
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L).setPriceData(SessionCreateParams.LineItem.PriceData.builder()
                                 .setCurrency("eur")
