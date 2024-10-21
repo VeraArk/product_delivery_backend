@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="create-table-orders" author="VeraArkind">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="orders"/>
+            </not>
+        </preConditions>
+        <createTable tableName="orders">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(150)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="delivery_time" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="total_sum" type="DECIMAL(10, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_method" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="payment_url" type="text">
+                <constraints nullable="true"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="orders"
+                baseColumnNames="user_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_orders_users"/>
+
+    </changeSet>
+</databaseChangeLog>

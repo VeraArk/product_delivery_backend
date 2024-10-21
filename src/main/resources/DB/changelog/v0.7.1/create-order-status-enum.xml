@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="create-order-status-enum" author="VeraArkind">
+        <sql>
+            CREATE TYPE order_status AS ENUM ('PENDING', 'CONFIRMED', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED');
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-payment-method-enum" author="VeraArkind">
+        <sql>
+            CREATE TYPE payment_method AS ENUM ('CREDIT_CARD', 'PAYPAL', 'BANK_TRANSFER');
+        </sql>
+    </changeSet>
+
+    <changeSet id="update-order-status-values" author="VeraArkind">
+        <sql>
+            UPDATE orders
+            SET order_status = 'PENDING'
+            WHERE order_status = '0';
+
+            UPDATE orders
+            SET order_status = 'CONFIRMED'
+            WHERE order_status = '1';
+
+            UPDATE orders
+            SET order_status = 'PAID'
+            WHERE order_status = '2';
+
+
+        </sql>
+    </changeSet>
+
+    <changeSet id="alter-table-orders" author="VeraArkind">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="orders"/>
+        </preConditions>
+            <modifyDataType tableName="orders" columnName="order_status" newDataType="order_status"/>
+            <modifyDataType tableName="orders" columnName="payment_method" newDataType="payment_method"/>
+    </changeSet>
+</databaseChangeLog>
