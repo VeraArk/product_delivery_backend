@@ -125,9 +125,8 @@ class ProductServiceTest {
     void findAllProduct_emptyList() {
         when(productRepository.findAll()).thenReturn(List.of());
 
-        List<AllProductResponseDto> result = productService.findAllProduct();
-
-        assertTrue(result.isEmpty());
+        assertThrows(NotFoundException.class, () -> productService.findAllProduct());;
+        verify(productRepository).findAll();
     }
 
     @Test

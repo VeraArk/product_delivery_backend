@@ -34,7 +34,6 @@ public class OrderController {
 
     private final OrderService orderService;
     private final UserService userService;
-    private final OrderRepository orderRepository;
 
     @Operation(summary = "Create a new order",
             description = "Create a new order for the currently logged-in user.")
