@@ -36,6 +36,7 @@ public class CartController {
             @ApiResponse(responseCode = "404", description = "Product not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
+
     @PostMapping("/{productId}")
     public ResponseEntity<CartProductResponseDto> addItemToCart(@PathVariable Long productId) {
         User user = userService.getUser();
@@ -131,12 +132,10 @@ public class CartController {
             throw new NotFoundException("User not found.");
         }
         Long cartId = cartService.findCartByUserId(user.getId());
-        if (cartId == null) {
-            throw new NotFoundException("Product not found in cart.");
+        if (cartId == -1) {
+            throw new NotFoundException("Cart not found for user.");
         }
         CartProductResponseDto cartProductResponseDto = cartService.updateCartProduct(cartId, productId, productQuantity);
         return ResponseEntity.ok(cartProductResponseDto);
     }
-
-
 }

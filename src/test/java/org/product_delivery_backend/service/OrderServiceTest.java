@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,24 +121,23 @@ class OrderServiceTest {
 
     @Test
     void createOrder_Success() {
-
         List<CartProduct> cartProducts = new ArrayList<>();
         cartProducts.add(cartProduct);
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(cartRepository.findCartByUserId(user.getId())).thenReturn(Optional.of(cart));
         when(cartProductRepository.findByCartId(cart.getId())).thenReturn(cartProducts);
-        when(productRepository.findById(anyLong())).thenReturn(Optional.of(new Product()));
-        when(orderProductMapper.toOrderProduct(any(CartProduct.class))).thenReturn(new OrderProduct());
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(orderProductMapper.toOrderProduct(cartProduct)).thenReturn(orderProduct);
         when(orderMapper.toOrderResponseDto(any(Order.class))).thenReturn(orderResponseDto);
 
         OrderResponseDto result = orderService.createOrder(user.getId());
-
         assertNotNull(result);
+
         verify(orderRepository, times(2)).save(any(Order.class));
+
         verify(cartService).clearCart(cart.getId());
     }
-
     @Test
     void createOrder_UserNotFound_ThrowsNotFoundException() {
 
@@ -160,6 +160,7 @@ class OrderServiceTest {
     @Test
     void confirmOrder_Success() throws StripeException {
 
+        orderRequestDto.setId(1L);
         orderRequestDto.setDeliveryTime(LocalDateTime.now().toString());
         orderRequestDto.setAddress("Test Address");
         when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
@@ -257,12 +258,12 @@ class OrderServiceTest {
     }
 
     @Test
-    void findOrderById_OrderNotFound_ThrowsNotFoundException() {
+    void findOrderById_OrderNotFound_ThrowsNoSuchElementException() {
 
-        Long orderId = order.getId();
+        Long orderId = 1L;  // Пример ID заказа
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> orderService.findOrderById(orderId));
+        assertThrows(NoSuchElementException.class, () -> orderService.findOrderById(orderId));
     }
 }

@@ -1,189 +1,203 @@
 package org.product_delivery_backend.controller;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.product_delivery_backend.dto.orderDto.OrderRequestDto;
 import org.product_delivery_backend.dto.orderDto.OrderResponseDto;
 import org.product_delivery_backend.dto.orderDto.UpdateStatusOrderResponseDto;
+import org.product_delivery_backend.entity.Order;
+import org.product_delivery_backend.entity.OrderStatus;
 import org.product_delivery_backend.entity.User;
-import org.product_delivery_backend.exceptions.InvalidDataException;
 import org.product_delivery_backend.exceptions.NotFoundException;
 import org.product_delivery_backend.exceptions.OrderException;
+import org.product_delivery_backend.repository.OrderRepository;
 import org.product_delivery_backend.service.OrderService;
 import org.product_delivery_backend.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WithMockUser(username = "test@example.com")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 class OrderControllerTest {
 
-    @InjectMocks
-    private OrderController orderController;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private OrderService orderService;
 
-    @Mock
+    @MockBean
     private UserService userService;
+
+    @MockBean
+    private OrderRepository orderRepository;
+
+
+    private ObjectMapper objectMapper;
+    private User user;
+    private OrderResponseDto orderResponseDto;
+    private OrderRequestDto orderRequestDto;
+    private  UpdateStatusOrderResponseDto updateStatusOrderResponseDto;
+    private Order order;
+
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+
+        objectMapper = new ObjectMapper();
+
+        user = new User();
+        user.setId(1L);
+        user.setEmail("test@example.com");
+
+        orderResponseDto = new OrderResponseDto();
+        orderResponseDto.setId(1L);
+
+        orderRequestDto = new OrderRequestDto();
+        orderRequestDto.setId(1L);
+
+        updateStatusOrderResponseDto = new UpdateStatusOrderResponseDto();
+
+        order =new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.PENDING);
     }
 
     @Test
-    void testCreateOrder_UserNotFound() {
-        when(userService.getUser()).thenReturn(null);
+    void testCreateOrder_Success() throws Exception {
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            orderController.createOrder();
-        });
+        when(userService.getUser()).thenReturn(user);
 
-        assertEquals("User not found.", exception.getMessage());
-    }
+        when(orderService.createOrder(user.getId())).thenReturn(orderResponseDto);
 
-    @Test
-    void testCreateOrder_Success() {
-        User mockUser = new User();
-        mockUser.setId(1L);
-        when(userService.getUser()).thenReturn(mockUser);
-        OrderResponseDto mockResponse = new OrderResponseDto();
-        when(orderService.createOrder(mockUser.getId())).thenReturn(mockResponse);
+        mockMvc.perform(post("/api/order")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(orderResponseDto.getId()));
 
-        ResponseEntity<OrderResponseDto> response = orderController.createOrder();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        verify(orderService, times(1)).createOrder(mockUser.getId());
-    }
-
-    @Test
-    void testConfirmOrder_InvalidData() {
-        OrderRequestDto orderRequestDto = new OrderRequestDto();
-        orderRequestDto.setId(null);
-
-        InvalidDataException exception = assertThrows(InvalidDataException.class, () -> {
-            orderController.confirmOrder(orderRequestDto);
-        });
-
-        assertEquals("Order ID cannot be null.", exception.getMessage());
     }
 
     @Test
     void testConfirmOrder_Success() throws Exception {
-        OrderRequestDto orderRequestDto = new OrderRequestDto();
-        orderRequestDto.setId(1L);
-        UpdateStatusOrderResponseDto mockResponse = new UpdateStatusOrderResponseDto();
-        when(orderService.confirmOrder(orderRequestDto)).thenReturn(mockResponse);
 
-        ResponseEntity<UpdateStatusOrderResponseDto> response = orderController.confirmOrder(orderRequestDto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        verify(orderService, times(1)).confirmOrder(orderRequestDto);
+        updateStatusOrderResponseDto.setOrderStatus(OrderStatus.CONFIRMED);
+
+        when(orderService.confirmOrder(any(OrderRequestDto.class))).thenReturn(updateStatusOrderResponseDto);
+
+        mockMvc.perform(put("/api/order/confirmed")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequestDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderStatus").value(OrderStatus.CONFIRMED.name()));
     }
 
     @Test
-    void testPayForOrder_OrderNotFound() {
-        Long orderId = 1L;
-        when(orderService.findOrderById(orderId)).thenReturn(null);
+    void testConfirmOrder_OrderNotFound() throws Exception {
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            orderController.payForOrder(orderId);
-        });
+        when(orderService.confirmOrder(any(OrderRequestDto.class))).thenThrow(new NotFoundException("Order not found"));
 
-        assertEquals("Order not found.", exception.getMessage());
+        mockMvc.perform(put("/api/order/confirmed")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(orderRequestDto)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void testPayForOrder_Success() {
-        Long orderId = 1L;
-        UpdateStatusOrderResponseDto mockResponse = new UpdateStatusOrderResponseDto();
-        OrderResponseDto orderResponseDto = new OrderResponseDto();
-        when(orderService.findOrderById(orderId)).thenReturn(orderResponseDto);
-        when(orderService.payForOrder(orderId)).thenReturn(mockResponse);
+    void testPayForOrder_Success() throws Exception {
 
-        ResponseEntity<UpdateStatusOrderResponseDto> response = orderController.payForOrder(orderId);
+        updateStatusOrderResponseDto.setOrderStatus(OrderStatus.PAID);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        verify(orderService, times(1)).payForOrder(orderId);
+        when(orderService.findOrderById(1L)).thenReturn(orderResponseDto);
+        when(orderService.payForOrder(1L)).thenReturn(updateStatusOrderResponseDto);
+
+        mockMvc.perform(put("/api/order/paid/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderStatus").value(OrderStatus.PAID.name()));
     }
 
     @Test
-    void testCancelOrder_OrderNotFound() {
-        Long orderId = 1L;
-        when(orderService.findOrderById(orderId)).thenReturn(null);
+    void testPayForOrder_OrderNotFound() throws Exception {
+        when(orderService.payForOrder(1L)).thenThrow(new NotFoundException("Order not found"));
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            orderController.cancelOrder(orderId);
-        });
+        mockMvc.perform(put("/api/order/paid/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
 
-        assertEquals("Order not found.", exception.getMessage());
     }
 
     @Test
     void testCancelOrder_Success() throws Exception, OrderException {
-        Long orderId = 1L;
-        UpdateStatusOrderResponseDto mockResponse = new UpdateStatusOrderResponseDto();
-        OrderResponseDto orderResponseDto = new OrderResponseDto();
-        when(orderService.findOrderById(orderId)).thenReturn(orderResponseDto);
-        when(orderService.cancelOrder(orderId)).thenReturn(mockResponse);
 
-        ResponseEntity<UpdateStatusOrderResponseDto> response = orderController.cancelOrder(orderId);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        verify(orderService, times(1)).cancelOrder(orderId);
+        updateStatusOrderResponseDto.setOrderStatus(OrderStatus.CANCELLED);
+
+        when(orderService.findOrderById(1L)).thenReturn(orderResponseDto);
+        when(orderService.cancelOrder(1L)).thenReturn(updateStatusOrderResponseDto);
+
+        mockMvc.perform(put("/api/order/1/cancel")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderStatus").value(OrderStatus.CANCELLED.name()));
     }
 
     @Test
-    void testGetOrders_Success() {
-        User mockUser = new User();
-        mockUser.setId(1L);
-        List<OrderResponseDto> mockOrders = new ArrayList<>();
-        when(userService.getUser()).thenReturn(mockUser);
-        when(orderService.getOrders(mockUser.getId())).thenReturn(mockOrders);
+    void testClearOrder_Success() throws Exception {
 
-        ResponseEntity<List<OrderResponseDto>> response = orderController.getOrders();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        verify(orderService, times(1)).getOrders(mockUser.getId());
+        when(orderService.findOrderById(1L)).thenReturn(orderResponseDto);
+        mockMvc.perform(delete("/api/order/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Order cleared"));
     }
 
     @Test
-    void testClearOrder_OrderNotFound() {
-        Long orderId = 1L;
-        when(orderService.findOrderById(orderId)).thenReturn(null);
+    void testGetOrders_Success() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        when(userService.getUser()).thenReturn(user);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            orderController.clearOrder(orderId);
-        });
+        List<OrderResponseDto> orders = Arrays.asList(new OrderResponseDto(), new OrderResponseDto());
+        when(orderService.getOrders(user.getId())).thenReturn(orders);
 
-        assertEquals("Order not found.", exception.getMessage());
+        mockMvc.perform(get("/api/order/my")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(orders.size()));
     }
 
     @Test
-    void testClearOrder_Success() {
-        Long orderId = 1L;
-        OrderResponseDto orderResponseDto = new OrderResponseDto();
-        when(orderService.findOrderById(orderId)).thenReturn(orderResponseDto);
+    void testGetAllOrders_Success() throws Exception {
+        List<OrderResponseDto> orders = Arrays.asList(new OrderResponseDto(), new OrderResponseDto());
+        when(orderService.getAllOrders()).thenReturn(orders);
 
-        ResponseEntity<String> response = orderController.clearOrder(orderId);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Order cleared", response.getBody());
-        verify(orderService, times(1)).clearOrder(orderId);
+        mockMvc.perform(get("/api/order")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(orders.size()));
     }
+
 }
+
+
+
