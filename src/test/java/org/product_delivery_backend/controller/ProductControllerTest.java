@@ -1,287 +1,231 @@
 
 package org.product_delivery_backend.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 import org.product_delivery_backend.dto.productDto.AllProductResponseDto;
 import org.product_delivery_backend.dto.productDto.ProductRequestDto;
 import org.product_delivery_backend.dto.productDto.ProductResponseDto;
-import org.product_delivery_backend.entity.Role;
-import org.product_delivery_backend.entity.User;
-import org.product_delivery_backend.exceptions.NotFoundException;
-import org.product_delivery_backend.repository.RoleRepository;
-import org.product_delivery_backend.repository.UserRepository;
-import org.product_delivery_backend.security.dto.AuthResponse;
-import org.product_delivery_backend.security.dto.LoginRequestDto;
-import org.product_delivery_backend.security.dto.TokenResponseDto;
+import org.product_delivery_backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@AutoConfigureMockMvc
 class ProductControllerTest {
 
-    @LocalServerPort
-    private int port;
-    private TestRestTemplate template;
-    private HttpHeaders headers;
-
-
-    ProductResponseDto responseDto;
-    private String adminAccessToken;
-    private String userAccessToken;
+    @Autowired
+    private MockMvc mockMvc;
 
     @Autowired
-    private BCryptPasswordEncoder encoder;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+     private ObjectMapper objectMapper;
+
+    @MockBean
+    private ProductService productService;
+
+    private AllProductResponseDto allProductResponseDto;
+
+    private AllProductResponseDto allProductResponseDto2;
 
 
-    private static final String TEST_PRODUCT_TITLE = "TestProduct";
-    private static final int TEST_PRODUCT_PRICE = 1;
-    private static final String TEST_PRODUCT_CODE = "200-BR098766";
-    private static final String TEST_PRODUCT_QUANTITY = "50 g";
-    private static final String TEST_DESCRIPTION = "Test Product Description";
-    private static final String FOTO_LINK = "HTTPS://VARUS.UA/IMG/PRODUCT/1140";
-
-    private static final String TEST_ADMIN_EMAIL = "email1@gmal.com";
-    private static final String TEST_USER_EMAIL = "email2@gmal.com";
-    private static final String FIRST_NAME = "First name";
-    private static final String LAST_NAME = "Last name";
-    private static final String PHONE_ADMIN = "PHONE_ADMIN";
-    private static final String PHONE_USER = "PHONE_USER";
-
-    private static final String TEST_PASSWORD = "$2a$10$G0JgWc2R.9uDn0Wn5BT9XO012sYVwSm482V0UfTPb7MqDk6fRfJVO";
-    private static final String ROLE_ADMIN_TITLE = "ROLE_ADMIN";
-    private static final String ROLE_USER_TITLE = "ROLE_USER";
-
-    private final String URL_HOST = "http://localhost:";
-    private final String AUTH_RESOURCE_NAME = "/api/auth";
-    private final String PRODUCTS_RESOURCE_NAME = "/api/products";
-    private final String LOGIN_ENDPOINT = "/login";
-
-    private final String BEARER_TOKEN_PREFIX = "Bearer ";
 
     @BeforeEach
-    public void setUp() {
-        template = new TestRestTemplate(); //отправляет запросы
-        headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+    void setUp(){
+        objectMapper = new ObjectMapper();
+        allProductResponseDto = new AllProductResponseDto();
+        allProductResponseDto.setId(1L);
+        allProductResponseDto.setTitle("Product1");
+        allProductResponseDto.setPrice(new BigDecimal("10.00"));
+        allProductResponseDto.setMinQuantity("2");
+        allProductResponseDto.setPhotoLink("www.foto.by");
 
-        // Создаем тестовый продукт
-        responseDto = new ProductResponseDto();
-        responseDto.setId(1L);
-        responseDto.setTitle(TEST_PRODUCT_TITLE);
-        responseDto.setPrice(new BigDecimal(TEST_PRODUCT_PRICE));
-        responseDto.setProductCode(TEST_PRODUCT_CODE);
-        responseDto.setMinQuantity(TEST_PRODUCT_QUANTITY);
-        responseDto.setDescription(TEST_DESCRIPTION);
-        responseDto.setPhotoLink(FOTO_LINK);
-
-        Role roleUser=null;
-        Role roleAdmin;
-
-        // Пытаемся найті тестовых пользователей в БД
-        User admin = userRepository.findByEmail(TEST_ADMIN_EMAIL).orElse(null);
-        User user = userRepository.findByEmail(TEST_USER_EMAIL).orElse(null);
-
-        //если их нет в БД, создаем
-        if (admin == null) {
-            roleAdmin = roleRepository.findByTitle(ROLE_ADMIN_TITLE).orElseThrow(() -> new NotFoundException("Role ADMIN is not found"));
-            roleUser = roleRepository.findByTitle(ROLE_USER_TITLE).orElseThrow(() -> new NotFoundException("Role USER not found in DB"));
-
-            admin = new User();
-            admin.setFirstName(FIRST_NAME);
-            admin.setLastName(LAST_NAME);
-            admin.setEmail(TEST_ADMIN_EMAIL);
-            admin.setPassword(encoder.encode(TEST_PASSWORD));
-            admin.setRoles(Set.of(roleAdmin, roleUser));
-            admin.setPhone(PHONE_ADMIN);
-
-            userRepository.save(admin);
-        }
-
-        if (user == null) {
-            roleUser = (roleUser != null)
-                    ? roleUser
-                    : roleRepository.findByTitle(ROLE_USER_TITLE).orElseThrow(() -> new RuntimeException("Role USER not found in DB"));
-
-            user = new User();
-            user.setFirstName(FIRST_NAME);
-            user.setLastName(LAST_NAME);
-            user.setEmail(TEST_USER_EMAIL);
-            user.setPassword(encoder.encode(TEST_PASSWORD));
-            user.setRoles(Set.of(roleUser));
-            user.setPhone(PHONE_USER);
-
-            userRepository.save(user);
-        }
-        // Получить от сервера токены!
-        // Создаем объекты LoginRequestDto для админа и пользователя
-
-        LoginRequestDto loginAdminDto = new LoginRequestDto(TEST_ADMIN_EMAIL, TEST_PASSWORD);
-        LoginRequestDto loginUserDto = new LoginRequestDto(TEST_USER_EMAIL, TEST_PASSWORD);
-
-        // POST -> http://localhost:56500/api/auth/login
-        String authUrl = URL_HOST + port + AUTH_RESOURCE_NAME + LOGIN_ENDPOINT;
-
-        HttpEntity<LoginRequestDto> request = new HttpEntity<>(loginAdminDto, headers);
-
-        ResponseEntity<AuthResponse> response = template.exchange(
-                authUrl,                // URL
-                HttpMethod.POST,        //метод
-                request,                 //запрос, который отправляем
-                AuthResponse.class    // что хотім получіть в ответ
-        );
-
-        assertTrue(response.hasBody(), "Authorization admin response body is empty");
-
-        AuthResponse authResponse = response.getBody();
-
-        System.out.println("Authorization response body: "  + " - " + response.getBody());
-
-        adminAccessToken = BEARER_TOKEN_PREFIX + authResponse.getToken();
-
-        // Получаем токен юзера
-        request = new HttpEntity<>(loginUserDto, headers);
-        response = template.exchange(
-                authUrl,
-                HttpMethod.POST,
-                request,
-                AuthResponse.class
-        );
-
-        assertTrue(response.hasBody(), "Authorization user response body is empty");
-        authResponse = response.getBody();
-        userAccessToken = BEARER_TOKEN_PREFIX + authResponse.getToken();
-    }
-
-
-    @Test
-    @Order(1)
-    public void findAllProducts() {
-        String url = "http://localhost:" + port + PRODUCTS_RESOURCE_NAME;
-
-        ResponseEntity<List<AllProductResponseDto>> response = template.exchange(
-                url,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {
-                });
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.hasBody());
+        allProductResponseDto2=   new AllProductResponseDto();
+        allProductResponseDto2.setId(2L);
+        allProductResponseDto2.setTitle("Product2");
+        allProductResponseDto2.setPrice(new BigDecimal("20.00"));
+        allProductResponseDto2.setMinQuantity("3");
+        allProductResponseDto2.setPhotoLink("www.foto.by");
     }
 
     @Test
-    @Order(2)
-    public void notAddProductWithoutAuthorization() {
-        String url = URL_HOST + port + PRODUCTS_RESOURCE_NAME;
+    void findAll_Success() throws Exception {
+        // Given
+        List<AllProductResponseDto> productList = Arrays.asList(allProductResponseDto, allProductResponseDto2);
 
-        HttpEntity<ProductResponseDto> request = new HttpEntity<>(responseDto, headers);
+        when(productService.findAllProduct()).thenReturn(productList);
 
-        ResponseEntity<Void> response = template.exchange(
-                url,
-                HttpMethod.POST,
-                request,
-                Void.class // не интересует тело ответа
-        );
-        // Проверка статуса: статус 403 Forbidden
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Response has unexpected status");
-        System.out.println(response.getStatusCode());
+        mockMvc.perform(get("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value (2))
+                .andExpect(jsonPath("$[0].title").value("Product1"))
+                .andExpect(jsonPath("$[1].title").value("Product2"));
 
+        verify(productService, times(1)).findAllProduct();
     }
 
     @Test
-    @Order(3)
-    public void addProduct() {
+    void findAll_ProductsNotFound_ThrowsNotFoundException() throws Exception {
 
+        when(productService.findAllProduct()).thenReturn(Collections.emptyList());
 
-        String url = "http://localhost:" + port + PRODUCTS_RESOURCE_NAME;
+        mockMvc.perform(get("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
 
-        ProductRequestDto productRequest = new ProductRequestDto("New Product", new BigDecimal(15), "123", "500g", "Description", "photoLink");
-        headers.setBearerAuth(adminAccessToken);
-
-        ResponseEntity<ProductResponseDto> response = template.exchange(
-                url,
-                HttpMethod.POST,
-                new HttpEntity<>(productRequest, headers),
-                ProductResponseDto.class);
-        if (response.getBody() != null) {
-            assertEquals("New Product", response.getBody().getTitle());
-        } else {
-            System.out.println("Response body is null or status code is: " + response.getStatusCode());
-        }
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("New Product", response.getBody().getTitle());
-    }
-
-
-    @Test
-    @Order(5)
-    public void findAllProductsByPage() {
-        String url = "http://localhost:" + port + PRODUCTS_RESOURCE_NAME + "/page?page=0&size=2";
-
-        ResponseEntity<Page<AllProductResponseDto>> response = template.exchange(
-                url,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {
-                });
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.hasBody());
-        assertEquals(2, response.getBody().getContent().size());
-    }
-
-
-    @Test
-    @Order(6)
-    public void deleteProduct() {
-        String url = "http://localhost:" + port + PRODUCTS_RESOURCE_NAME + "/99";
-
-        headers.setBearerAuth(adminAccessToken);
-        System.out.println(adminAccessToken);
-
-        ResponseEntity<Void> response = template.exchange(
-                url,
-                HttpMethod.DELETE,
-                new HttpEntity<>(headers),
-                Void.class);
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(productService, times(1)).findAllProduct();
     }
 
     @Test
-    @Order(7)
-    public void findProductById() {
-        String url = "http://localhost:" + port + PRODUCTS_RESOURCE_NAME + "/1";
+    void findAllPage_Success() throws Exception {
 
-        ResponseEntity<ProductResponseDto> response = template.exchange(
-                url,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                ProductResponseDto.class);
+        List<AllProductResponseDto> products = List.of(allProductResponseDto, allProductResponseDto2);
+        Page<AllProductResponseDto> productPage = new PageImpl<>(products, PageRequest.of(0, 2), products.size());
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Product 1", response.getBody().getTitle());
+        when(productService.findAllProductPage(any(Pageable.class))).thenReturn(productPage);
+
+        mockMvc.perform(get("/api/products/page")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.size()").value(2))
+                .andExpect(jsonPath("$.content[0].title").value("Product1"))
+                .andExpect(jsonPath("$.content[1].title").value("Product2"));
+
+        verify(productService, Mockito.times(1)).findAllProductPage(any(Pageable.class));
     }
+
+    @Test
+    void findAllPage_ByCategory_Success() throws Exception {
+
+        List<AllProductResponseDto> products = List.of(allProductResponseDto);
+        Page<AllProductResponseDto> productPage = new PageImpl<>(products, PageRequest.of(0, 1), products.size());
+
+        when(productService.findProductsByCategory(eq("DAIRY"), any(Pageable.class))).thenReturn(productPage);
+
+        mockMvc.perform(get("/api/products/page")
+                        .param("page", "0")
+                        .param("size", "1")
+                        .param("category", "DAIRY")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.size()").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("Product1"));
+
+        verify(productService, Mockito.times(1)).findProductsByCategory(eq("DAIRY"), any(Pageable.class));
+    }
+
+    @Test
+    void findAllPage_InvalidPaginationParams_ThrowsInvalidDataException() throws Exception {
+        mockMvc.perform(get("/api/products/page")
+                        .param("page", "-1")
+                        .param("size", "0")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void findAllPage_EmptyPage_ThrowsNotFoundException() throws Exception {
+        Page<AllProductResponseDto> emptyPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(1, 2), 0);
+
+        when(productService.findAllProductPage(any(Pageable.class))).thenReturn(emptyPage);
+
+        mockMvc.perform(get("/api/products/page")
+                        .param("page", "1")
+                        .param("size", "2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(productService, times(1)).findAllProductPage(any(Pageable.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void addProduct_success() throws Exception {
+        ProductRequestDto requestDto = new ProductRequestDto("ProductTitle", new BigDecimal("15.00"), "200-Mi876543", "2", "Description", "www.poto.com");
+        ProductResponseDto responseDto = new ProductResponseDto(1L, "ProductTitle", new BigDecimal("15.00"), "200-Mi876543", "2", "Description", "www.poto.com");
+
+        when(productService.addProduct(any(ProductRequestDto.class))).thenReturn(responseDto);
+
+        mockMvc.perform(post("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.title").value("ProductTitle"))
+                .andExpect(jsonPath("$.price").value(15.00))
+                .andExpect(jsonPath("$.description").value("Description"));
+
+        verify(productService, times(1)).addProduct(any(ProductRequestDto.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void addProduct_throwException() throws Exception {
+
+        ProductRequestDto requestDto = new ProductRequestDto();
+
+        mockMvc.perform(post("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Product title cannot be empty."))
+                .andExpect(jsonPath("$.statusCode").value(400));
+
+        verify(productService, times(0)).addProduct(any(ProductRequestDto.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void deleteProduct_success() throws Exception {
+        Long productId = 1L;
+
+        ProductResponseDto product = new ProductResponseDto(productId, "ProductTitle", new BigDecimal("15.00"), "200-Mi876543", "2", "Description", "www.photo.com");
+        when(productService.findProductById(productId)).thenReturn(product);
+
+        mockMvc.perform(delete("/api/products/{id}", productId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).findProductById(productId);
+        verify(productService, times(1)).deleteProduct(productId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void deleteProduct_notFound() throws Exception {
+        Long productId = 1L;
+
+        when(productService.findProductById(productId)).thenReturn(null);
+
+        mockMvc.perform(delete("/api/products/{id}", productId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Product not found."))
+                .andExpect(jsonPath("$.statusCode").value(404));
+
+        verify(productService, times(1)).findProductById(productId);
+        verify(productService, times(0)).deleteProduct(productId);
+    }
+
 }

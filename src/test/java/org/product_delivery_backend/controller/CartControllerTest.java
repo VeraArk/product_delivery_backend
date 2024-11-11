@@ -1,156 +1,187 @@
 package org.product_delivery_backend.controller;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.product_delivery_backend.entity.Role;
+import org.product_delivery_backend.dto.cartProductDto.CartProductResponseDto;
 import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.exceptions.NotFoundException;
-import org.product_delivery_backend.repository.RoleRepository;
-import org.product_delivery_backend.repository.UserRepository;
-import org.product_delivery_backend.security.dto.LoginRequestDto;
-import org.product_delivery_backend.security.dto.TokenResponseDto;
+import org.product_delivery_backend.service.CartService;
+import org.product_delivery_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 
-import java.util.Set;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WithMockUser(username = "test@example.com")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@AutoConfigureMockMvc
 class CartControllerTest {
 
-    @LocalServerPort
-    private int port;
-
-    private TestRestTemplate template;
-    private HttpHeaders headers;
-    private String adminAccessToken;
-    private String userAccessToken;
-
-
     @Autowired
-    private BCryptPasswordEncoder encoder;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+    private MockMvc mockMvc;
 
-//    private static final String TEST_PRODUCT_TITLE = "Test Product";
-//    private static final int TEST_PRODUCT_PRICE = 12;
-//    private static final  String TEST_PRODUCT_CODE= "Test ProductCode";
-//    private static final String TEST_PRODUCT_QUANTITY = "Test MinQuantity";
-//    private static final String TEST_DESCRIPTION = "Test Product Description";
+    @MockBean
+    private CartService cartService;
 
-    private static final String TEST_ADMIN_EMAIL = "email1@gmal.com";
-    private static final String TEST_USER_EMAIL = "email2@gmal.com";
-    private static final String FIRST_NAME = "First name";
-    private static final String LAST_NAME = "Last name";
-    private static final String PHONE_ADMIN = "PHONE_ADMIN";
-    private static final String PHONE_USER = "PHONE_USER";
+    @MockBean
+    private UserService userService;
 
 
-    private static final String TEST_PASSWORD = "$2a$10$G0JgWc2R.9uDn0Wn5BT9XO012sYVwSm482V0UfTPb7MqDk6fRfJVO";
-    private static final String ROLE_ADMIN_TITLE = "ROLE_ADMIN";
-    private static final String ROLE_USER_TITLE = "ROLE_USER";
+       private User user;
 
-    private final String URL_HOST = "http://localhost:";
-    private final String AUTH_RESOURCE_NAME = "/api/auth";
-    private final String CART_RESOURCE_NAME = "/api/cart";
-    private final String LOGIN_ENDPOINT = "/login";
 
-    private final String BEARER_TOKEN_PREFIX = "Bearer ";
+    private CartProductResponseDto cartProductResponseDto;
+
 
     @BeforeEach
-    public void setUp() {
+    void setUp(){
 
-        template = new TestRestTemplate();
-        headers = new HttpHeaders();
+        user= new User();
+        user.setId(1L);
+        user.setEmail("test@example.com");
 
-        Role roleUser=null;
-        Role roleAdmin;
 
-        User admin = userRepository.findByEmail(TEST_ADMIN_EMAIL).orElse(null);
-        User user = userRepository.findByEmail(TEST_USER_EMAIL).orElse(null);
-
-        if (admin == null) {
-            roleAdmin = roleRepository.findByTitle(ROLE_ADMIN_TITLE).orElseThrow(() -> new NotFoundException("Role ADMIN is not found"));
-            roleUser = roleRepository.findByTitle(ROLE_USER_TITLE).orElseThrow(() -> new NotFoundException("Role USER not found in DB"));
-            admin = new User();
-            admin.setFirstName(FIRST_NAME);
-            admin.setLastName(LAST_NAME);
-            admin.setEmail(TEST_ADMIN_EMAIL);
-            admin.setPassword(encoder.encode(TEST_PASSWORD));
-            admin.setRoles(Set.of(roleAdmin, roleUser));
-            admin.setPhone(PHONE_ADMIN);
-
-            userRepository.save(admin);
-        }
-
-        if (user == null) {
-            roleUser = (roleUser != null)
-                    ? roleUser
-                    : roleRepository.findByTitle(ROLE_USER_TITLE).orElseThrow(() -> new RuntimeException("Role USER not found in DB"));
-
-            user = new User();
-            user.setFirstName(FIRST_NAME);
-            user.setLastName(LAST_NAME);
-            user.setEmail(TEST_USER_EMAIL);
-            user.setPassword(encoder.encode(TEST_PASSWORD));
-            user.setRoles(Set.of(roleUser));
-            user.setPhone(PHONE_USER);
-
-            userRepository.save(user);
-        }
-
-        LoginRequestDto loginAdminDto = new LoginRequestDto(TEST_ADMIN_EMAIL, TEST_PASSWORD);
-        LoginRequestDto loginUserDto = new LoginRequestDto(TEST_USER_EMAIL, TEST_PASSWORD);
-
-        String authUrl = URL_HOST + port + AUTH_RESOURCE_NAME + LOGIN_ENDPOINT;
-
-        HttpEntity<LoginRequestDto> request = new HttpEntity<>(loginAdminDto, headers);
-
-        ResponseEntity<TokenResponseDto> response = template.exchange(
-                authUrl,                // URL
-                HttpMethod.POST,        //метод
-                request,                 //запрос, который отправляем
-                TokenResponseDto.class    // что хотім получіть в ответ
-        );
-
-        assertTrue(response.hasBody(), "Authorization admin response body is empty");
-
-        TokenResponseDto tokenResponseDto = response.getBody();
-
-        adminAccessToken = BEARER_TOKEN_PREFIX + tokenResponseDto.getAccessToken();
-
-        // Получаем токен юзера
-        request = new HttpEntity<>(loginUserDto, headers);
-        response = template.exchange(
-                authUrl,
-                HttpMethod.POST,
-                request,
-                TokenResponseDto.class
-        );
-
-        assertTrue(response.hasBody(), "Authorization user response body is empty");
-        tokenResponseDto = response.getBody();
-        userAccessToken = BEARER_TOKEN_PREFIX + tokenResponseDto.getAccessToken();
+        cartProductResponseDto = CartProductResponseDto.builder()
+                .id(2L)
+                .cartId(1L)
+                .productId(3L)
+                .productQuantity(2)
+                .sum(new BigDecimal("10.00"))
+                .build();
 
     }
 
     @Test
-    public void test() {
+    void addItemToCart_ShouldReturnOk() throws Exception {
+        Long userId= 1L;
+        Long productId =3L;
+
+        when(userService.getUser()).thenReturn(user);
+
+        when(cartService.addProductToCart(userId, productId)).thenReturn(cartProductResponseDto);
+
+        mockMvc.perform(post("/api/cart/3")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":2,\"cartId\":1,\"productId\":3,\"productQuantity\":2,\"sum\":10.00}"));
+
+        verify(cartService, times(1)).addProductToCart(1L, 3L);
+    }
+
+    @Test
+    void addItemToCart_UserNotFound_ShouldThrowNotFoundException() throws Exception {
+        when(userService.getUser()).thenThrow(new NotFoundException("User not found."));
+
+        mockMvc.perform(post("/api/cart/3")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("User not found."));
+    }
+
+    @Test
+    void getAllProductsInCart_ShouldReturnProductList() throws Exception {
+        when(userService.getUser()).thenReturn(user);
+
+        when(cartService.getProductsInCart(1L)).thenReturn(List.of(cartProductResponseDto));
+
+        mockMvc.perform(get("/api/cart")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+
+        verify(cartService, times(1)).getProductsInCart(1L);
+    }
+
+    @Test
+    void getAllProductsInCart_EmptyCart_ShouldThrowNotFoundException() throws Exception {
+        when(userService.getUser()).thenReturn(user);
+
+        when(cartService.getProductsInCart(1L)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/cart")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Cart is empty."));
+    }
+
+    @Test
+    void deleteByCartItemId_ShouldReturnOk() throws Exception {
+        when(userService.getUser()).thenReturn(user);
+        when(cartService.findCartByUserId(1L)).thenReturn(1L);
+
+        mockMvc.perform(delete("/api/cart/3")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Product removed"));
+
+        verify(cartService, times(1)).removeProductFromCart(1L, 3L);
+    }
+
+    @Test
+    void clearCart_ShouldReturnOk() throws Exception {
+        when(userService.getUser()).thenReturn(user);
+        when(cartService.findCartByUserId(1L)).thenReturn(1L);
+
+        mockMvc.perform(delete("/api/cart")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Cart is empty"));
+
+        verify(cartService, times(1)).clearCart(1L);
+    }
+
+    @Test
+    void updateCartProduct_ShouldReturnUpdatedProduct() throws Exception {
+        when(userService.getUser()).thenReturn(user);
+        when(cartService.findCartByUserId(1L)).thenReturn(1L);
+
+        cartProductResponseDto.setProductQuantity(5);
+
+        when(cartService.updateCartProduct(1L, 3L, 5)).thenReturn(cartProductResponseDto);
+
+        mockMvc.perform(put("/api/cart/3/5")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.productQuantity").value(5));
+
+        verify(cartService, times(1)).updateCartProduct(1L, 3L, 5);
+    }
+
+
+    @Test
+    void updateCartProduct_NotFoundUser_ShouldThrowNotFoundException() throws Exception {
+        when(userService.getUser()).thenReturn(null);
+
+        mockMvc.perform(put("/api/cart/3/5")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("User not found."));
 
     }
-}
 
-//}
+
+    @Test
+    void updateCartProduct_NotFoundCart_ShouldThrowNotFoundException() throws Exception {
+        when(userService.getUser()).thenReturn(user);
+        when(cartService.findCartByUserId(user.getId())).thenReturn(-1L);
+
+        mockMvc.perform(put("/api/cart/3/5")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Cart not found for user."));
+
+    }
+
+}

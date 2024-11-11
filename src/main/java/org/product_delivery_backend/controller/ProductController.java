@@ -45,7 +45,7 @@ public class ProductController {
         if (products.isEmpty()) {
             throw new NotFoundException("No products found.");
         }
-        return new ResponseEntity<>(productService.findAllProduct(), HttpStatus.OK);
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @Operation(summary = "Find all products with pagination",
