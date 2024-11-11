@@ -2,7 +2,7 @@ package org.product_delivery_backend.service;
 
 import com.stripe.exception.StripeException;
 import lombok.Data;
-import org.product_delivery_backend.dto.OrderProduct.OrderProductResponseDto;
+import org.product_delivery_backend.dto.orderProduct.OrderProductResponseDto;
 import org.product_delivery_backend.dto.orderDto.UpdateStatusOrderResponseDto;
 import org.product_delivery_backend.dto.orderDto.OrderRequestDto;
 import org.product_delivery_backend.dto.orderDto.OrderResponseDto;
@@ -71,7 +71,6 @@ public class OrderService {
                 })
                 .collect(Collectors.toList());
 
-
         order.setOrderProducts(orderProducts);
 
         BigDecimal totalSum = orderProducts.stream()
@@ -82,7 +81,6 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        // повторный поиск корзины для чего???
         Optional<Cart> optionalCart = cartRepository.findCartByUserId(userId);
         Cart existCart = optionalCart.orElseThrow(() -> new NotFoundException("Cart not found for user ID: " + userId));
         cartService.clearCart(existCart.getId());
@@ -159,11 +157,6 @@ public class OrderService {
         return orderMapper.toOrderResponseDto(optionalOrder.get());
     }
 
-    public OrderResponseDto getOrder(Long userId) {
-        Optional<Order> optionalOrder = orderRepository.findOrderByUserId(userId);
-        Order existOrder = optionalOrder.orElseThrow(() -> new NotFoundException("Order not found for ID: " + userId));
-        return orderMapper.toOrderResponseDto(existOrder);
-    }
 
     public List<OrderResponseDto> getOrders (Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);

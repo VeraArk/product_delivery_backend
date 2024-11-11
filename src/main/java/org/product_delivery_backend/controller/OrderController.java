@@ -9,11 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.product_delivery_backend.dto.ErrorResponseDto;
 import org.product_delivery_backend.dto.orderDto.UpdateStatusOrderResponseDto;
 import org.product_delivery_backend.dto.orderDto.OrderRequestDto;
 import org.product_delivery_backend.dto.orderDto.OrderResponseDto;
-import org.product_delivery_backend.entity.OrderStatus;
 import org.product_delivery_backend.entity.User;
 import org.product_delivery_backend.exceptions.InvalidDataException;
 import org.product_delivery_backend.exceptions.NotFoundException;
@@ -22,7 +20,6 @@ import org.product_delivery_backend.repository.OrderRepository;
 import org.product_delivery_backend.service.OrderService;
 import org.product_delivery_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -34,6 +31,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final UserService userService;
+
 
     @Operation(summary = "Create a new order",
             description = "Create a new order for the currently logged-in user.")
@@ -143,12 +141,10 @@ public class OrderController {
     @GetMapping("/my")
     public ResponseEntity<List<OrderResponseDto>> getOrders() {
         User user = userService.getUser();
-        orderService.getOrders(user.getId());
         return ResponseEntity.ok(orderService.getOrders(user.getId()));
     }
     @GetMapping()
     public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
-        orderService.getAllOrders();
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 }

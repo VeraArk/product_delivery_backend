@@ -1,5 +1,6 @@
 package org.product_delivery_backend.controller;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,10 +93,12 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(orderResponseDto.getId()));
+
     }
 
     @Test
     void testConfirmOrder_Success() throws Exception {
+
 
         updateStatusOrderResponseDto.setOrderStatus(OrderStatus.CONFIRMED);
 
@@ -140,10 +143,12 @@ class OrderControllerTest {
         mockMvc.perform(put("/api/order/paid/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+
     }
 
     @Test
     void testCancelOrder_Success() throws Exception, OrderException {
+
 
         updateStatusOrderResponseDto.setOrderStatus(OrderStatus.CANCELLED);
 
@@ -193,5 +198,6 @@ class OrderControllerTest {
     }
 
 }
+
 
 

@@ -1,5 +1,6 @@
 package org.product_delivery_backend.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,37 +19,45 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
+@Schema(description = "User entity representing a system user.")
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @Schema(description = "User unique identifier", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @Column(name = "firstName")
+    @Schema(description = "User's first name.", example = "John")
     private String firstName;
+    @Schema(description = "User's last name.", example = "Johnson")
     @Column(name = "lastName")
     private String lastName;
     @Column(name = "email")
+    @Schema(description = "User's email address.", example = "john.johnson@gmail.com")
     private String email;
     @Column(name = "password")
+    @Schema(description = "User's password.", example = "password123")
     private String password;
     @Column(name = "phone")
+    @Schema(description = "User's phone number.", example = "+1234567890")
     private String phone;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns =@JoinColumn(name = "role_id")
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @Schema(description = "Roles assigned to the user.")
     private Set<Role> roles;
 
 
     @Override
     public String toString() {
         return String.format("User : id - %d, firstName - %s, lastName - %s, email - %s,phone - %s, roles - %s",
-                id, firstName,lastName, email, phone, roles == null ? "[]" : roles);
+                id, firstName, lastName, email, phone, roles == null ? "[]" : roles);
     }
 
 

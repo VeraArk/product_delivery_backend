@@ -12,9 +12,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.validation.annotation.Validated;
 
 @Configuration
-@PropertySource("file:.properties")
-//@PropertySource("classpath:.properties")
-@ConfigurationProperties
+@PropertySource("classpath:application.properties")
+@ConfigurationProperties(prefix = "app")
 @Getter
 @Setter
 @Validated
